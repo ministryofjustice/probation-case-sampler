@@ -1,2 +1,2 @@
-rootProject.name = "probation-caselist-sampler"
+rootProject.name = "probation-case-sampler"
 

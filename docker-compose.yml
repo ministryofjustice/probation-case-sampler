@@ -1,10 +1,10 @@
 version: '3.1'
 services:
   probation-teams:
-    image: quay.io/hmpps/probation-caselist-sampler:latest
+    image: quay.io/hmpps/probation-case-sampler:latest
     networks:
       - hmpps
-    container_name: probation-caselist-sampler
+    container_name: probation-case-sampler
     depends_on:
       - nomis-oauth2-server
     ports:

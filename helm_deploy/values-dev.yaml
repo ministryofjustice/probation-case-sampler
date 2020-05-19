@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: quay.io/hmpps/probation-caselist-sampler
+  repository: quay.io/hmpps/probation-case-sampler
   tag: latest
   pullPolicy: Always
   port: 8080
@@ -12,8 +12,8 @@ image:
 ingress:
   enabled: true
   enable_whitelist: false
-  host: probation-caselist-sampler-dev.prison.service.justice.gov.uk
-  cert_secret: probation-caselist-sampler-cert
+  host: probation-case-sampler-dev.prison.service.justice.gov.uk
+  cert_secret: probation-case-sampler-cert
   path: /
 
 env:
