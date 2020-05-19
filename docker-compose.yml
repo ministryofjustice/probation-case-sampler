@@ -1,6 +1,6 @@
 version: '3.1'
 services:
-  probation-teams:
+  probation-case-sampler:
     image: quay.io/hmpps/probation-case-sampler:latest
     networks:
       - hmpps
@@ -13,8 +13,6 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:8080/health/ping']
     environment:
       - SERVER_PORT=8080
-      - SUPERUSER_USERNAME=admin
-      - SUPERUSER_PASSWORD=admin_password
       - SPRING_PROFILES_ACTIVE=stdout
 
   nomis-oauth2-server:
