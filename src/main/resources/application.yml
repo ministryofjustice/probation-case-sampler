@@ -1,6 +1,6 @@
 spring:
   application:
-    name: probation-teams
+    name: probation-case-sampler
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
