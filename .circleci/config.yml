@@ -45,6 +45,17 @@ workflows:
             branches:
               only:
                 - master
+      - hmpps/deploy_env:
+          name: deploy_dev
+          env: "dev"
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - validate
+            - helm_lint
+            - build_docker
 
   scheduled:
     triggers:
