@@ -14,7 +14,7 @@ class CaseListService() {
         val groupedByStratification = longlist.asSequence()
                 .filter { it.isExcluded() }
                 .filter { it.isEarliestCaseForOffender(longlist) }
-                .groupBy { it.getStratification() }
+                .groupBy { it.getStratum() }
 
         val sampleSizes = calculateSampleSize(sampleSize, groupedByStratification)
 

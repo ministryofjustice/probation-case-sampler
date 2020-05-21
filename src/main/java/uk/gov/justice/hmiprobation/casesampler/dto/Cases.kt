@@ -4,11 +4,11 @@ import uk.gov.justice.hmiprobation.casesampler.dto.RiskOfSeriousHarmLevel.LOW
 import uk.gov.justice.hmiprobation.casesampler.dto.RiskOfSeriousHarmLevel.NON_LOW
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType.COMMUNITY_SENTENCE
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType.POST_CUSTODY
-import uk.gov.justice.hmiprobation.casesampler.dto.Stratification.FEMALE
-import uk.gov.justice.hmiprobation.casesampler.dto.Stratification.MALE_COMMUNITY_LOW
-import uk.gov.justice.hmiprobation.casesampler.dto.Stratification.MALE_COMMUNITY_NON_LOW
-import uk.gov.justice.hmiprobation.casesampler.dto.Stratification.MALE_POST_CUSTODY_LOW
-import uk.gov.justice.hmiprobation.casesampler.dto.Stratification.MALE_POST_CUSTODY_NON_LOW
+import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.FEMALE
+import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_COMMUNITY_LOW
+import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_COMMUNITY_NON_LOW
+import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_POST_CUSTODY_LOW
+import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_POST_CUSTODY_NON_LOW
 import java.time.LocalDate
 
 enum class Gender { MALE, FEMALE, OTHER }
@@ -23,7 +23,7 @@ enum class SentenceType {
     POST_CUSTODY
 }
 
-enum class Stratification {
+enum class Stratum {
     MALE_COMMUNITY_NON_LOW,
     MALE_COMMUNITY_LOW,
     MALE_POST_CUSTODY_NON_LOW,
@@ -70,7 +70,7 @@ data class Case(val familyName: String,
         return this === earliestCase
     }
 
-    fun getStratification() = when (gender) {
+    fun getStratum() = when (gender) {
         Gender.FEMALE -> FEMALE
         Gender.MALE -> when (sentenceType) {
             COMMUNITY_SENTENCE -> when (roshClassification) {
