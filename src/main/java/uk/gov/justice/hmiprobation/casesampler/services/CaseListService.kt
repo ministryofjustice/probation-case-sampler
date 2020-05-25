@@ -1,37 +1,25 @@
 package uk.gov.justice.hmiprobation.casesampler.services
 
-import uk.gov.justice.hmiprobation.casesampler.dto.Case
+import uk.gov.justice.hmiprobation.casesampler.dto.PrimaryCaseSample
+import uk.gov.justice.hmiprobation.casesampler.dto.PrimaryCaseSampleProvisional
 import uk.gov.justice.hmiprobation.casesampler.utils.calculateSampleSize
+
 
 class CaseListService() {
 
-    /**
-     * @param longlist a primary case sample
-     * @return shortlist (a Primary Case Sample Provisional)
-     */
-    fun process(sampleSize: Int, longlist: List<Case>) {
+    fun process(sampleSize: Int, bufferPercentage: Double, longlist: PrimaryCaseSample): PrimaryCaseSampleProvisional {
 
-        val groupedByStratification = longlist.asSequence()
-                .filter { it.isExcluded() }
+        val casesByStratum = longlist.asSequence()
+                .filter { it.isExcluded }
                 .filter { it.isEarliestCaseForOffender(longlist) }
                 .groupBy { it.getStratum() }
 
-        val sampleSizes = calculateSampleSize(sampleSize, groupedByStratification)
+        val sampleSizes = calculateSampleSize(sampleSize, casesByStratum, bufferPercentage)
 
-//        Randomly select cases in stratifications whilst maintaining proportions of
+//        val samples = sampleSizes.map { (stratum, size) ->
+//            Sample(stratum, size, pickSample(size, casesByStratum[stratum]!!)) }
 //
-//        Cluster
-//
-//        Local Delivery Unit (LDU)
-//
-//        Responsible Officer (RO) up to maximum of n
-//
-//                sample size and additional % are configurable (default to 120 and 20% respectively)
-//
-//        Assign the sample a uuid and timestamp
-//
-//        Assign each line an id starting from 001
-//
+//        return PrimaryCaseSampleProvisional(samples)
+        return TODO()
     }
-
 }
