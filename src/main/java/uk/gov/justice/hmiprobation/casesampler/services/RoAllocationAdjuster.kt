@@ -61,26 +61,26 @@ class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
      * */
     private fun reallocateRemovedCases(roSizes: List<RoSize>, numberOfRemovedCases: Int): List<RoSize> {
         val roToSize = roSizes.map { it.toPair() }.toMap().toMutableMap()
-        val infiniteRos = generateSequence { rosWithSpareCapacity(roSizes) }.flatten().iterator()
 
-        for (i in 0 until numberOfRemovedCases) {
-            var allocationSuccessful = false
-            for (j in 0 until roToSize.keys.size) { // <- make sure we don't retry previously seen ROs
-                val ro = infiniteRos.next()
+        val infiniteRos = infiniteRoIterator(roSizes)
 
-                if (roCaseCounter.canIncrement(ro)) {
-                    addCaseToRo(ro, roToSize)
-                    allocationSuccessful = true
-                    break
-                } else {
-                    log.info("Not allocating case to Ro: ${ro} as full, size: ${roCaseCounter.size(ro)}")
-                }
-            }
-            if (!allocationSuccessful) {
-                log.warn("Couldn't allocate sample as no capacity left")
+        (0 until numberOfRemovedCases).forEach { allocateCase(roToSize, infiniteRos) }
+
+        return roToSize.toList().map { RoSize(it) }.sortedBy { it.ro }
+    }
+
+    private fun allocateCase(roToSize: MutableMap<String, Size>, infiniteRos: Iterator<String>) {
+        (0 until roToSize.size).forEach { // <- make sure we don't retry previously seen ROs
+            val ro = infiniteRos.next()
+
+            if (roCaseCounter.canIncrement(ro)) {
+                addCaseToRo(ro, roToSize)
+                return
+            } else {
+                log.info("Not allocating case to Ro: ${ro} as full, size: ${roCaseCounter.size(ro)}")
             }
         }
-        return roToSize.toList().map { RoSize(it) }.sortedBy { it.ro }
+        log.warn("Couldn't allocate sample as no capacity left")
     }
 
     private fun addCaseToRo(ro: String, roToSize: MutableMap<String, Size>) {
@@ -93,10 +93,10 @@ class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
         }
     }
 
-    private fun rosWithSpareCapacity(roToSize: List<RoSize>) = roToSize
+    private fun infiniteRoIterator(roToSize: List<RoSize>) = generateSequence {
+        roToSize
             .sortedBy { (_, value) -> value.count }
-            .map { (ro, _) -> ro }
-
+            .map { (ro, _) -> ro } }.flatten().iterator()
 
     companion object {
         private val log = LoggerFactory.getLogger(RoAllocationAdjuster::class.java)
