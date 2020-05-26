@@ -11,6 +11,13 @@ import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_POST_CUSTODY_LOW
 import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_POST_CUSTODY_NON_LOW
 import java.time.LocalDate
 
+/**
+ * Long List of all cases within
+ * - NPS region being inspected
+ * - Date range being inspected
+ */
+typealias PrimaryCaseSample = List<Case>
+
 enum class Gender { MALE, FEMALE, OTHER }
 
 enum class RiskOfSeriousHarmLevel { LOW, NON_LOW }
@@ -57,7 +64,7 @@ data class Case(val familyName: String,
 
     internal fun isOtherGender() = gender == Gender.OTHER
 
-    fun isExcluded() = isRedacted() || isLaterCommencementDate() || isOtherGender()
+    val isExcluded = isRedacted() || isLaterCommencementDate() || isOtherGender()
 
     internal fun isSameOffender(other: Case): Boolean = pnc == other.pnc || (firstName == other.firstName && familyName == other.familyName && dob == other.dob)
 
@@ -84,5 +91,4 @@ data class Case(val familyName: String,
         }
         else -> throw Exception("Cannot determine type of stratification")
     }
-
 }

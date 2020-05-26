@@ -7,6 +7,7 @@ import uk.gov.justice.hmiprobation.casesampler.utils.CasesTest.Type.B
 import uk.gov.justice.hmiprobation.casesampler.utils.CasesTest.Type.C
 import uk.gov.justice.hmiprobation.casesampler.utils.CasesTest.Type.D
 import uk.gov.justice.hmiprobation.casesampler.utils.CasesTest.Type.E
+import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
 
 
 class CasesTest {
@@ -23,8 +24,8 @@ class CasesTest {
                 B to listOfSize(50)))
 
         assertThat(sizes).isEqualTo(listOf(
-                SampleSize(A, 5, "50.00"),
-                SampleSize(B, 5, "50.00")
+                Result(A, SampleSize(5, "50.00")),
+                Result(B, SampleSize(5, "50.00"))
         ))
     }
 
@@ -38,9 +39,9 @@ class CasesTest {
         ))
 
         assertThat(sizes).isEqualTo(listOf(
-                SampleSize(A, 3, "33.33"),
-                SampleSize(B, 3, "33.33"),
-                SampleSize(C, 3, "33.33")
+                Result(A, SampleSize(3, "33.33")),
+                Result(B, SampleSize(3, "33.33")),
+                Result(C, SampleSize(3, "33.33"))
         ))
     }
 
@@ -56,11 +57,31 @@ class CasesTest {
         ))
 
         assertThat(sizes).isEqualTo(listOf(
-                SampleSize(A, 55, "37.30"),
-                SampleSize(B, 17, "11.34"),
-                SampleSize(C, 40, "26.87"),
-                SampleSize(D, 16, "10.60"),
-                SampleSize(E, 21, "13.89")
+                Result(A, SampleSize(55, "37.30")),
+                Result(B, SampleSize(17, "11.34")),
+                Result(C, SampleSize(40, "26.87")),
+                Result(D, SampleSize(16, "10.60")),
+                Result(E, SampleSize(21, "13.89"))
+        ))
+    }
+
+    @Test
+    fun `example from doc with 20% buffer`() {
+
+        val sizes = calculateSampleSize(148, mapOf(
+                A to listOfSize(454),
+                B to listOfSize(138),
+                C to listOfSize(327),
+                D to listOfSize(129),
+                E to listOfSize(169)
+        ), 20.00)
+
+        assertThat(sizes).isEqualTo(listOf(
+                Result(A, SampleSize(55, 66, "37.30")),
+                Result(B, SampleSize(17, 20, "11.34")),
+                Result(C, SampleSize(40, 48, "26.87")),
+                Result(D, SampleSize(16, 19, "10.60")),
+                Result(E, SampleSize(21, 25, "13.89"))
         ))
     }
 }

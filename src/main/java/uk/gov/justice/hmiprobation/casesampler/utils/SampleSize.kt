@@ -1,21 +1,49 @@
 package uk.gov.justice.hmiprobation.casesampler.utils
 
+import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
 import kotlin.math.roundToInt
 
-data class SampleSize<E : Enum<E>>(
-        val type: E,
-        val numberOfSamples: Int,
-        val percentage: String
-)
 
-fun <E: Enum<E>> toSampleSize(numberOfSamples: Int, entry: Map.Entry<E, Double>) = SampleSize<E>(
-        type = entry.key,
-        numberOfSamples = (numberOfSamples * entry.value).roundToInt(),
-        percentage = "%.2f".format(entry.value * 100)
-)
+sealed class Size(val count: Int) {
 
-fun <E : Enum<E>> calculateSampleSize(numberOfSamples: Int, groupedByType: Map<E, List<Any>>): List<SampleSize<E>> {
+    data class SampleSize(
+            val numberOfSamplesWithoutBuffer: Int,
+            val numberOfSamples: Int,
+            val percentage: String
+    ) : Size(numberOfSamples) {
+        constructor(numberOfSamples: Int, percentage: String) : this(numberOfSamples, numberOfSamples, percentage)
+    }
+
+    data class Adjusted(
+            val adjustment: Int,
+            val numberOfSamples: Int,
+            val preAdjustedPercentage: String
+    ) : Size(numberOfSamples)
+}
+
+data class Result<K>(val key: K, val size: SampleSize)
+typealias SampleSizes<K> = List<Result<K>>
+
+fun <K> calculateSampleSize(
+        numberOfSamples: Int,
+        groupedByType: Map<K, List<Any>>,
+        bufferPercentage: Double = 0.0): SampleSizes<K> =
+        calculateProportions(groupedByType).map { (type, proportion) ->
+            Result(type, toSampleSize(numberOfSamples, bufferPercentage, proportion))
+        }
+
+
+fun <K> calculateProportions(groupedByType: Map<K, List<Any>>): Map<K, Double> {
     val totalCases = groupedByType.values.map { it.size }.sum()
-    val bucketProportions = groupedByType.mapValues { (it.value.size.toDouble() / totalCases) }
-    return bucketProportions.map { toSampleSize(numberOfSamples, it) }
+    return groupedByType.mapValues { (it.value.size.toDouble() / totalCases) }
+}
+
+fun toSampleSize(numberOfSamples: Int, bufferPercentage: Double, proportion: Double): SampleSize {
+    val base = (numberOfSamples * proportion).roundToInt()
+    val buffer = ((base.toDouble() / 100) * bufferPercentage).roundToInt()
+    return SampleSize(
+            numberOfSamplesWithoutBuffer = base,
+            numberOfSamples = base + buffer,
+            percentage = "%.2f".format(proportion * 100)
+    )
 }

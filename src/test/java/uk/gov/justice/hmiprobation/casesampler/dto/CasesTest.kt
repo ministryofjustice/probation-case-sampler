@@ -95,15 +95,15 @@ class CasesTest {
     inner class IsExcluded {
         @Test
         fun `redacted is excluded`() {
-            assertThat(case().copy(firstName = "*", familyName = "Jens").isExcluded()).isTrue()
+            assertThat(case().copy(firstName = "*", familyName = "Jens").isExcluded).isTrue()
         }
         @Test
         fun `other gender is excluded`() {
-            assertThat(case().copy(gender = Gender.OTHER).isExcluded()).isTrue()
+            assertThat(case().copy(gender = Gender.OTHER).isExcluded).isTrue()
         }
         @Test
         fun `cases that start after now are excluded`() {
-            assertThat(case().copy(startDate = LocalDate.now().plusDays(1)).isExcluded()).isTrue()
+            assertThat(case().copy(startDate = LocalDate.now().plusDays(1)).isExcluded).isTrue()
         }
     }
 
