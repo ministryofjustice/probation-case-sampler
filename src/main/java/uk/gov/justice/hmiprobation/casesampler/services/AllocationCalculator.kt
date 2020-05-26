@@ -1,5 +1,6 @@
 package uk.gov.justice.hmiprobation.casesampler.services
 
+import org.slf4j.LoggerFactory
 import uk.gov.justice.hmiprobation.casesampler.dto.Case
 import uk.gov.justice.hmiprobation.casesampler.utils.Size
 import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
@@ -8,8 +9,11 @@ import kotlin.random.Random
 
 data class Info(val id: String, val size: Size)
 
-data class RoAllocation(val cluster: Info, val ldu: Info, val ro: Info, val cases: List<Case>) {
-    fun getRandomSamples(random: Random = Random) = cases.shuffled(random).take(ro.size.count)
+data class AllocationData(val cluster: Info, val ldu: Info, val ro: Info)
+
+data class RoAllocation(val allocationData: AllocationData, val cases: List<Case>) {
+
+    fun getRandomSamples(random: Random = Random) = cases.shuffled(random).take(allocationData.ro.size.count)
 }
 
 /**
@@ -18,9 +22,9 @@ data class RoAllocation(val cluster: Info, val ldu: Info, val ro: Info, val case
  *  - Local Delivery Unit (LDU)
  *  - Responsible Officer (RO) up to maximum of n
  */
-class AllocationCalculator(val size: SampleSize, val cases: List<Case>, val roAllocationAdjuster: RoAllocationAdjuster) {
+class AllocationCalculator(val roAllocationAdjuster: RoAllocationAdjuster) {
 
-    fun calculateRoAllocations(): List<RoAllocation> {
+    fun calculate(size: SampleSize, cases: List<Case>): List<RoAllocation> {
         val casesByCluster = cases.groupBy { it.cluster }
 
         val clusterSizes = calculateSampleSize(size.numberOfSamples, casesByCluster)
@@ -46,11 +50,17 @@ class AllocationCalculator(val size: SampleSize, val cases: List<Case>, val roAl
         val casesByRo = cases.groupBy { it.responsibleOfficer }
 
         val sampleSizesForRo = calculateSampleSize(ldu.size.count, casesByRo)
+
+        log.info("Adjusting sample sizes for ROs in LDU: ${ldu.id}")
         val roSizes = roAllocationAdjuster.adjust(sampleSizesForRo)
 
         return roSizes.fold(mutableListOf()) { result, (ro, size) ->
-            result.add(RoAllocation(cluster, ldu, Info(ro, size), casesByRo[ro]!!))
+            result.add(RoAllocation(AllocationData(cluster, ldu, Info(ro, size)), casesByRo[ro]!!))
             result
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(RoAllocationAdjuster::class.java)
     }
 }

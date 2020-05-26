@@ -5,7 +5,7 @@ import uk.gov.justice.hmiprobation.casesampler.dto.PrimaryCaseSampleProvisional
 import uk.gov.justice.hmiprobation.casesampler.utils.calculateSampleSize
 
 
-class CaseListService() {
+class CaseListService(val samplePicker: SamplePicker) {
 
     fun process(sampleSize: Int, bufferPercentage: Double, longlist: PrimaryCaseSample): PrimaryCaseSampleProvisional {
 
@@ -16,10 +16,8 @@ class CaseListService() {
 
         val sampleSizes = calculateSampleSize(sampleSize, casesByStratum, bufferPercentage)
 
-//        val samples = sampleSizes.map { (stratum, size) ->
-//            Sample(stratum, size, pickSample(size, casesByStratum[stratum]!!)) }
-//
-//        return PrimaryCaseSampleProvisional(samples)
-        return TODO()
+        val samples = samplePicker.pick(sampleSizes, casesByStratum)
+
+        return PrimaryCaseSampleProvisional(samples)
     }
 }

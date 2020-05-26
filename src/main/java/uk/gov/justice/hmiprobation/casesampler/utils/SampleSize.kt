@@ -22,11 +22,12 @@ sealed class Size(val count: Int) {
 }
 
 data class Result<K>(val key: K, val size: SampleSize)
+typealias SampleSizes<K> = List<Result<K>>
 
 fun <K> calculateSampleSize(
         numberOfSamples: Int,
         groupedByType: Map<K, List<Any>>,
-        bufferPercentage: Double = 0.0): List<Result<K>> =
+        bufferPercentage: Double = 0.0): SampleSizes<K> =
         calculateProportions(groupedByType).map { (type, proportion) ->
             Result(type, toSampleSize(numberOfSamples, bufferPercentage, proportion))
         }

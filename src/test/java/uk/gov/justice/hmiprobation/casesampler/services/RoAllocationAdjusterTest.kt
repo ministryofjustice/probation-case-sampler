@@ -25,7 +25,7 @@ class RoAllocationAdjusterTest {
     fun `Copes with single result, less than max`() {
         assertThat(adjuster.adjust(listOf(sampleSize("ro1", 2)))).containsExactly(size("ro1", 2))
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(2)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(2)
     }
 
     @Test
@@ -40,9 +40,9 @@ class RoAllocationAdjusterTest {
                 size("ro3", 3)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(1)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(5)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(1)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(5)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(3)
     }
 
     @Test
@@ -67,9 +67,9 @@ class RoAllocationAdjusterTest {
                 size("ro3", 2)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(2)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(5)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(2)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(5)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(3)
     }
 
     @Test
@@ -82,8 +82,8 @@ class RoAllocationAdjusterTest {
                 adjusted("ro2", 6, -1)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(2)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(2)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(6)
     }
 
     @Test
@@ -102,11 +102,11 @@ class RoAllocationAdjusterTest {
                 size("ro5", 6)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(4)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(6)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(5)
-        assertThat(adjuster.counter.size("ro4")).isEqualTo(2)
-        assertThat(adjuster.counter.size("ro5")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(4)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(5)
+        assertThat(adjuster.roCaseCounter.size("ro4")).isEqualTo(2)
+        assertThat(adjuster.roCaseCounter.size("ro5")).isEqualTo(6)
     }
 
     @Test
@@ -125,11 +125,11 @@ class RoAllocationAdjusterTest {
                 size("ro5", 6)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(5)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(6)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(5)
-        assertThat(adjuster.counter.size("ro4")).isEqualTo(2)
-        assertThat(adjuster.counter.size("ro5")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(5)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(5)
+        assertThat(adjuster.roCaseCounter.size("ro4")).isEqualTo(2)
+        assertThat(adjuster.roCaseCounter.size("ro5")).isEqualTo(6)
     }
 
     @Test
@@ -138,7 +138,7 @@ class RoAllocationAdjusterTest {
                 sampleSize("ro1", 4),
                 sampleSize("ro2", 12),
                 sampleSize("ro3", 5),
-                sampleSize("ro4", 1),//4,1,3,4,1,4
+                sampleSize("ro4", 1),
                 sampleSize("ro5", 6)
         ))).containsExactly(
                 adjusted("ro1", 6, +2),
@@ -195,9 +195,9 @@ class RoAllocationAdjusterTest {
                 size("ro3", 3)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(3)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(6)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(3)
 
         assertThat(adjuster.adjust(listOf(
                 sampleSize("ro1", 4),
@@ -209,11 +209,11 @@ class RoAllocationAdjusterTest {
                 adjusted("ro4", 4, +2)
         )
 
-        assertThat(adjuster.counter.size("ro1")).isEqualTo(6)
-        assertThat(adjuster.counter.size("ro2")).isEqualTo(6)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(3)
-        assertThat(adjuster.counter.size("ro3")).isEqualTo(3)
-        assertThat(adjuster.counter.size("ro4")).isEqualTo(4)
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro4")).isEqualTo(4)
     }
 
     fun sampleSize(ro: String, samples: Int) = Result(ro, SampleSize(samples, "not relevant"))

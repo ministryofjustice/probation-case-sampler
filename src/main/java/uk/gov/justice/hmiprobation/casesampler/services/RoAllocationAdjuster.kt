@@ -9,6 +9,7 @@ import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
 
 data class RoSize(val ro: String, val size: Size) {
     constructor(pair: Pair<String, Size>) : this(pair.first, pair.second)
+
     fun toPair() = Pair(ro, size)
 }
 
@@ -20,78 +21,84 @@ data class RoSize(val ro: String, val size: Size) {
  */
 class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
 
-    val counter = Counter(maxAllowedCasesPerRo)
+    val roCaseCounter = Counter(maxAllowedCasesPerRo)
 
     fun adjust(sizes: List<Result<String>>): List<RoSize> {
 
-        val reducedSizes = sizes.map { toReducedSize(it.key, it.size) }
+        val reducedSizes = sizes.map { reduceSizesThatExceedCapacity(it.key, it.size) }
+
         val numberOfRemovedCases = numberOfRemovedCase(reducedSizes)
-        val (nonFull, full) = splitByCapacity(reducedSizes)
-        val spareCapacity = calculateSpareCapacity(reducedSizes) // <-  this doesn't take into consideration global capacity
 
-        log.info("Cases to reallocated: $numberOfRemovedCases, spare capacity: $spareCapacity")
+        log.info("Cases to reallocate: $numberOfRemovedCases, spare capacity: ${spareCapacity(reducedSizes)}")
 
-        val reAssigned = assignRemovedCases(nonFull, numberOfRemovedCases)
-
-        return (reAssigned + full).sortedBy { it.ro }
+        return reallocateRemovedCases(reducedSizes, numberOfRemovedCases)
     }
 
     private fun numberOfRemovedCase(sizes: List<RoSize>) = sizes.sumBy { (_, size) -> if (size is Adjusted) -size.adjustment else 0 }
 
-    private fun splitByCapacity(sizes: List<RoSize>) = sizes.partition { (ro, _) -> counter.size(ro) < maxAllowedCasesPerRo }
-
-    private fun calculateSpareCapacity(sizes: List<RoSize>) = sizes.sumBy { (ro, _) -> Math.max(0, maxAllowedCasesPerRo - counter.size(ro)) }
-
-    private fun assignRemovedCases(roSizes: List<RoSize>, numberOfRemovedCases: Int): List<RoSize> {
-        val roToSize = roSizes.map { it.toPair() }.toMap().toMutableMap()
-        val infiniteRos = generateSequence { smallestRoToLargest(roSizes) }.flatten().iterator()
-
-        for (i in 0 until numberOfRemovedCases) {
-            var found = false
-            for (j in 0 until roToSize.keys.size) { // <- make sure we don't retry seen ROs
-                val ro = infiniteRos.next()
-
-                if (counter.size(ro) + 1 <= maxAllowedCasesPerRo) {
-                    log.info("Allocating case to Ro: ${ro}, before size: ${counter.size(ro)}")
-                    val size = roToSize[ro]!!
-                    counter.inc(ro)
-                    roToSize[ro] = when (size) {
-                        is Adjusted -> Adjusted(size.adjustment + 1, size.numberOfSamples + 1, size.preAdjustedPercentage)
-                        is SampleSize -> Adjusted(1, size.numberOfSamples + 1, size.percentage)
-                    }
-                    found = true
-                    break
-                } else {
-                    log.info("Not allocating case to Ro: ${ro} as full, size: ${counter.size(ro)}")
-                }
-            }
-            if (!found) {
-                log.warn("Couldn't allocate sample")
-            }
-        }
-        return roToSize.toList().map { RoSize(it) }
-    }
-
-    private fun smallestRoToLargest(roToSize: List<RoSize>) = roToSize.sortedBy { (_, value) -> value.count }.map { (ro, _) -> ro }
+    private fun spareCapacity(sizes: List<RoSize>) = sizes.sumBy { (ro, _) -> roCaseCounter.spareCapacity(ro) }
 
     // Adjust sizes for each RO, so none are assigned more than the maxAllowedCasesPerRo
-    private fun toReducedSize(ro: String, size: SampleSize): RoSize {
-        val globalCount = counter.size(ro)
-        val more = size.count
+    private fun reduceSizesThatExceedCapacity(ro: String, size: SampleSize): RoSize {
+        val globalCount = roCaseCounter.size(ro)
+        val additional = size.count
         val adjustment = Math.max(0, globalCount + size.count - maxAllowedCasesPerRo)
         return if (adjustment > 0) {
-            counter.add(ro,  more - adjustment)
-            log.info("RO: $ro, globalCount: $globalCount, additional: $more,  adjustment: -$adjustment, newTotal: ${counter.size(ro)}")
-            RoSize(ro, Adjusted(-adjustment, more - adjustment, size.percentage))
+            roCaseCounter.add(ro, additional - adjustment)
+            log.info("Need to adjust RO cases: $ro, globalCount: $globalCount, additional: $additional,  adjustment: -$adjustment, newTotal: ${roCaseCounter.size(ro)}")
+            RoSize(ro, Adjusted(-adjustment, additional - adjustment, size.percentage))
         } else {
             val newCount = size.count
-            counter.add(ro, newCount)
-            log.info("RO: $ro, globalCount: $globalCount, additional: $more, newTotal: ${counter.size(ro)}")
+            roCaseCounter.add(ro, newCount)
+            log.info("Not adjusting RO cases: $ro, globalCount: $globalCount, additional: $additional, newTotal: ${roCaseCounter.size(ro)}")
             RoSize(ro, size)
         }
     }
 
+    /**
+     * Add individual cases to RO's which have spare global capacity from smallest to largest until all removed cases are reallocated
+     * @return modified sample sizes of each RO in alphabetic order of the RO's name
+     * */
+    private fun reallocateRemovedCases(roSizes: List<RoSize>, numberOfRemovedCases: Int): List<RoSize> {
+        val roToSize = roSizes.map { it.toPair() }.toMap().toMutableMap()
+        val infiniteRos = generateSequence { rosWithSpareCapacity(roSizes) }.flatten().iterator()
+
+        for (i in 0 until numberOfRemovedCases) {
+            var allocationSuccessful = false
+            for (j in 0 until roToSize.keys.size) { // <- make sure we don't retry previously seen ROs
+                val ro = infiniteRos.next()
+
+                if (roCaseCounter.canIncrement(ro)) {
+                    addCaseToRo(ro, roToSize)
+                    allocationSuccessful = true
+                    break
+                } else {
+                    log.info("Not allocating case to Ro: ${ro} as full, size: ${roCaseCounter.size(ro)}")
+                }
+            }
+            if (!allocationSuccessful) {
+                log.warn("Couldn't allocate sample as no capacity left")
+            }
+        }
+        return roToSize.toList().map { RoSize(it) }.sortedBy { it.ro }
+    }
+
+    private fun addCaseToRo(ro: String, roToSize: MutableMap<String, Size>) {
+        log.info("Current size of ${ro} is ${roCaseCounter.size(ro)}, allocating additional case")
+        val size = roToSize[ro]!!
+        roCaseCounter.inc(ro)
+        roToSize[ro] = when (size) {
+            is Adjusted -> Adjusted(size.adjustment + 1, size.numberOfSamples + 1, size.preAdjustedPercentage)
+            is SampleSize -> Adjusted(1, size.numberOfSamples + 1, size.percentage)
+        }
+    }
+
+    private fun rosWithSpareCapacity(roToSize: List<RoSize>) = roToSize
+            .sortedBy { (_, value) -> value.count }
+            .map { (ro, _) -> ro }
+
+
     companion object {
-        private val log = LoggerFactory.getLogger(AllocationCalculator::class.java)
+        private val log = LoggerFactory.getLogger(RoAllocationAdjuster::class.java)
     }
 }

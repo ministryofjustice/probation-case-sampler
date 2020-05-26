@@ -45,11 +45,11 @@ data class Case(val familyName: String,
                 val sentenceType: SentenceType,
                 val crn: String,
                 val pnc: String,
-        //Risk of Serious Harm [RoSH] Classification
+                //Risk of Serious Harm [RoSH] Classification
                 val roshClassification: RiskOfSeriousHarmLevel,
-        // Sentence date or release on licence date
+                // Sentence date or release on licence date
                 val startDate: LocalDate,
-        // Order or licence terminated
+                // Order or licence terminated
                 val endDate: LocalDate,
                 val cluster: String,
                 val ldu: String,
@@ -64,7 +64,7 @@ data class Case(val familyName: String,
 
     internal fun isOtherGender() = gender == Gender.OTHER
 
-    val isExcluded = isOtherGender() || isRedacted() || isLaterCommencementDate()
+    val isExcluded = isRedacted() || isLaterCommencementDate() || isOtherGender()
 
     internal fun isSameOffender(other: Case): Boolean = pnc == other.pnc || (firstName == other.firstName && familyName == other.familyName && dob == other.dob)
 

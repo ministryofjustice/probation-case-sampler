@@ -14,4 +14,8 @@ class Counter(val maxPerKey: Int = Integer.MAX_VALUE) {
     fun add(key: String, number: Int) { count[key] = safeAdd(key,number)}
 
     fun size(key: String): Int = count.getOrDefault(key, 0)
+
+    fun canIncrement(key: String) = size(key) < maxPerKey
+
+    fun spareCapacity(key: String) = Math.max(0, maxPerKey - size(key))
 }
