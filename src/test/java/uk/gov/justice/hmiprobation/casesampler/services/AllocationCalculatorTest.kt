@@ -12,7 +12,7 @@ import uk.gov.justice.hmiprobation.casesampler.dto.Gender.MALE
 import uk.gov.justice.hmiprobation.casesampler.dto.RiskOfSeriousHarmLevel
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType
 import uk.gov.justice.hmiprobation.casesampler.utils.Result
-import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
+import uk.gov.justice.hmiprobation.casesampler.utils.SampleSize
 import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
@@ -53,25 +53,25 @@ class AllocationCalculatorTest {
         assertThat(data).hasSize(4)
         assertThat(data).filteredOn { it.cluster.id == "N01" }.containsExactly(
                 AllocationData(
-                        cluster = Info("N01", SampleSize(2, 2, "50.00")),
-                        ldu = Info("N01AAA", SampleSize(1, 1, "50.00")),
-                        ro = Info("ro1", SampleSize(1, 1, "100.00"))
+                        cluster = Info("N01", SampleSize(2, "50.00")),
+                        ldu = Info("N01AAA", SampleSize(1, "50.00")),
+                        ro = Info("ro1", SampleSize(1, "100.00"))
                 ),
                 AllocationData(
-                        cluster = Info("N01", SampleSize(2, 2, "50.00")),
-                        ldu = Info("N01BBB", SampleSize(1, 1, "50.00")),
-                        ro = Info("ro2", SampleSize(1, 1, "100.00"))
+                        cluster = Info("N01", SampleSize(2, "50.00")),
+                        ldu = Info("N01BBB", SampleSize(1, "50.00")),
+                        ro = Info("ro2", SampleSize(1, "100.00"))
                 ))
         assertThat(data).filteredOn { it.cluster.id == "N02" }.containsExactly(
                 AllocationData(
-                        cluster = Info("N02", SampleSize(2, 2, "50.00")),
-                        ldu = Info("N02AAA", SampleSize(1, 1, "50.00")),
-                        ro = Info("ro1", SampleSize(1, 1, "100.00"))
+                        cluster = Info("N02", SampleSize(2, "50.00")),
+                        ldu = Info("N02AAA", SampleSize(1, "50.00")),
+                        ro = Info("ro1", SampleSize(1, "100.00"))
                 ),
                 AllocationData(
-                        cluster = Info("N02", SampleSize(2, 2, "50.00")),
-                        ldu = Info("N02BBB", SampleSize(1, 1, "50.00")),
-                        ro = Info("ro2", SampleSize(1, 1, "100.00"))
+                        cluster = Info("N02", SampleSize(2, "50.00")),
+                        ldu = Info("N02BBB", SampleSize(1, "50.00")),
+                        ro = Info("ro2", SampleSize(1, "100.00"))
                 ))
     }
 
@@ -118,8 +118,8 @@ class AllocationCalculatorTest {
 
         val data = results.map { it.allocationData }
         assertThat(data).hasSize(2)
-        assertThat(data.find { it.cluster.id == "N01" }).extracting { it!!.cluster }.isEqualTo(Info("N01", SampleSize(1, 1, "33.33")))
-        assertThat(data.find { it.cluster.id == "N02" }).extracting { it!!.cluster }.isEqualTo(Info("N02", SampleSize(3, 3, "66.67")))
+        assertThat(data.find { it.cluster.id == "N01" }).extracting { it!!.cluster }.isEqualTo(Info("N01", SampleSize(1, "33.33")))
+        assertThat(data.find { it.cluster.id == "N02" }).extracting { it!!.cluster }.isEqualTo(Info("N02", SampleSize(3, "66.67")))
 
         val cases = results.flatMap { it.getRandomSamples() }
         assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(1)
@@ -140,8 +140,8 @@ class AllocationCalculatorTest {
 
         val data = results.map { it.allocationData }
         assertThat(data).hasSize(2)
-        assertThat(data.find { it.ldu.id == "N01AAA" }).extracting { it!!.ldu }.isEqualTo(Info("N01AAA", SampleSize(1, 1, "33.33")))
-        assertThat(data.find { it.ldu.id == "N01BBB" }).extracting { it!!.ldu }.isEqualTo(Info("N01BBB", SampleSize(3, 3, "66.67")))
+        assertThat(data.find { it.ldu.id == "N01AAA" }).extracting { it!!.ldu }.isEqualTo(Info("N01AAA", SampleSize(1, "33.33")))
+        assertThat(data.find { it.ldu.id == "N01BBB" }).extracting { it!!.ldu }.isEqualTo(Info("N01BBB", SampleSize(3, "66.67")))
 
         val cases = results.flatMap { it.getRandomSamples() }
         assertThat(cases).filteredOn { it.ldu == "N01AAA" }.hasSize(1)
@@ -162,8 +162,8 @@ class AllocationCalculatorTest {
 
         val data = results.map { it.allocationData }
         assertThat(data).hasSize(2)
-        assertThat(data.find { it.ro.id == "ro1" }).extracting { it!!.ro }.isEqualTo(Info("ro1", SampleSize(1, 1, "33.33")))
-        assertThat(data.find { it.ro.id == "ro2" }).extracting { it!!.ro }.isEqualTo(Info("ro2", SampleSize(3, 3, "66.67")))
+        assertThat(data.find { it.ro.id == "ro1" }).extracting { it!!.ro }.isEqualTo(Info("ro1", SampleSize(1, "33.33")))
+        assertThat(data.find { it.ro.id == "ro2" }).extracting { it!!.ro }.isEqualTo(Info("ro2", SampleSize(3, "66.67")))
 
         val cases = results.flatMap { it.getRandomSamples() }
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro1" }.hasSize(1)

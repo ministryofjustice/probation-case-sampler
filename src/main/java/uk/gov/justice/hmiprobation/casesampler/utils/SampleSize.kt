@@ -1,49 +1,24 @@
 package uk.gov.justice.hmiprobation.casesampler.utils
 
-import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
-import kotlin.math.roundToInt
+import uk.gov.justice.hmiprobation.casesampler.utils.Type.INITIAL
 
+enum class Type { INITIAL, WITH_BUFFER, ROUNDED, INCREASED_FOR_RO, DECREASED_FOR_RO }
 
-sealed class Size(val count: Int) {
+data class PreviousValue(val type: Type, val numberOfSamples: Int)
 
-    data class SampleSize(
-            val numberOfSamplesWithoutBuffer: Int,
-            val numberOfSamples: Int,
-            val percentage: String
-    ) : Size(numberOfSamples) {
-        constructor(numberOfSamples: Int, percentage: String) : this(numberOfSamples, numberOfSamples, percentage)
-    }
+data class SampleSize(
+        val count: Int,
+        val originalPercentage: String,
+        val type: Type = INITIAL,
+        val previousValues: List<PreviousValue> = listOf()) {
 
-    data class Adjusted(
-            val adjustment: Int,
-            val numberOfSamples: Int,
-            val preAdjustedPercentage: String
-    ) : Size(numberOfSamples)
-}
-
-data class Result<K>(val key: K, val size: SampleSize)
-typealias SampleSizes<K> = List<Result<K>>
-
-fun <K> calculateSampleSize(
-        numberOfSamples: Int,
-        groupedByType: Map<K, List<Any>>,
-        bufferPercentage: Double = 0.0): SampleSizes<K> =
-        calculateProportions(groupedByType).map { (type, proportion) ->
-            Result(type, toSampleSize(numberOfSamples, bufferPercentage, proportion))
-        }
-
-
-fun <K> calculateProportions(groupedByType: Map<K, List<Any>>): Map<K, Double> {
-    val totalCases = groupedByType.values.map { it.size }.sum()
-    return groupedByType.mapValues { (it.value.size.toDouble() / totalCases) }
-}
-
-fun toSampleSize(numberOfSamples: Int, bufferPercentage: Double, proportion: Double): SampleSize {
-    val base = (numberOfSamples * proportion).roundToInt()
-    val buffer = ((base.toDouble() / 100) * bufferPercentage).roundToInt()
-    return SampleSize(
-            numberOfSamplesWithoutBuffer = base,
-            numberOfSamples = base + buffer,
-            percentage = "%.2f".format(proportion * 100)
+    fun update(newType: Type, newCount: Int): SampleSize = SampleSize(
+            type = newType,
+            count = newCount,
+            originalPercentage = originalPercentage,
+            // only bother adding history entry if new type of change
+            previousValues = if (newType == type) previousValues else previousValues + PreviousValue(type, count)
     )
+
+    fun previousChange(): Int = if (previousValues.isEmpty()) count else count - previousValues.last().numberOfSamples
 }

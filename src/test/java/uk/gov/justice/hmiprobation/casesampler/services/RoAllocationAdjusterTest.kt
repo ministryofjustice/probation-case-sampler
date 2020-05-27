@@ -4,8 +4,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import uk.gov.justice.hmiprobation.casesampler.utils.Result
-import uk.gov.justice.hmiprobation.casesampler.utils.Size.Adjusted
-import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
+import uk.gov.justice.hmiprobation.casesampler.utils.SampleSize
+import uk.gov.justice.hmiprobation.casesampler.utils.Type.DECREASED_FOR_RO
+import uk.gov.justice.hmiprobation.casesampler.utils.Type.INCREASED_FOR_RO
 
 class RoAllocationAdjusterTest {
 
@@ -23,7 +24,7 @@ class RoAllocationAdjusterTest {
 
     @Test
     fun `Copes with single result, less than max`() {
-        assertThat(adjuster.adjust(listOf(sampleSize("ro1", 2)))).containsExactly(size("ro1", 2))
+        assertThat(adjuster.adjust(listOf(sampleSize("ro1", 2)))).containsExactly(unmodified("ro1", 2))
 
         assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(2)
     }
@@ -35,9 +36,9 @@ class RoAllocationAdjusterTest {
                 sampleSize("ro2", 5),
                 sampleSize("ro3", 3)
         ))).containsExactly(
-                size("ro1", 1),
-                size("ro2", 5),
-                size("ro3", 3)
+                unmodified("ro1", 1),
+                unmodified("ro2", 5),
+                unmodified("ro3", 3)
         )
 
         assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(1)
@@ -52,9 +53,9 @@ class RoAllocationAdjusterTest {
                 sampleSize("ro2", 3),
                 sampleSize("ro3", 1)
         ))).containsExactly(
-                size("ro1", 1),
-                size("ro2", 3),
-                size("ro3", 1)
+                unmodified("ro1", 1),
+                unmodified("ro2", 3),
+                unmodified("ro3", 1)
         )
 
         assertThat(adjuster.adjust(listOf(
@@ -62,9 +63,9 @@ class RoAllocationAdjusterTest {
                 sampleSize("ro2", 2),
                 sampleSize("ro3", 2)
         ))).containsExactly(
-                size("ro1", 1),
-                size("ro2", 2),
-                size("ro3", 2)
+                unmodified("ro1", 1),
+                unmodified("ro2", 2),
+                unmodified("ro3", 2)
         )
 
         assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(2)
@@ -95,11 +96,11 @@ class RoAllocationAdjusterTest {
                 sampleSize("ro4", 1),
                 sampleSize("ro5", 6)
         ))).containsExactly(
-                size("ro1", 4),
+                unmodified("ro1", 4),
                 adjusted("ro2", 6, -1),
-                size("ro3", 5),
+                unmodified("ro3", 5),
                 adjusted("ro4", 2, +1),
-                size("ro5", 6)
+                unmodified("ro5", 6)
         )
 
         assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(4)
@@ -120,9 +121,9 @@ class RoAllocationAdjusterTest {
         ))).containsExactly(
                 adjusted("ro1", 5, +1),
                 adjusted("ro2", 6, -2),
-                size("ro3", 5),
+                unmodified("ro3", 5),
                 adjusted("ro4", 2, +1),
-                size("ro5", 6)
+                unmodified("ro5", 6)
         )
 
         assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(5)
@@ -145,7 +146,7 @@ class RoAllocationAdjusterTest {
                 adjusted("ro2", 6, -6),
                 adjusted("ro3", 6, +1),
                 adjusted("ro4", 4, +3),
-                size("ro5", 6)
+                unmodified("ro5", 6)
         )
     }
 
@@ -192,7 +193,7 @@ class RoAllocationAdjusterTest {
         ))).containsExactly(
                 adjusted("ro1", 3, +1),
                 adjusted("ro2", 6, -1),
-                size("ro3", 3)
+                unmodified("ro3", 3)
         )
 
         assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(3)
@@ -217,7 +218,12 @@ class RoAllocationAdjusterTest {
     }
 
     fun sampleSize(ro: String, samples: Int) = Result(ro, SampleSize(samples, "not relevant"))
-    fun size(ro: String, samples: Int) = RoSize(ro, SampleSize(samples, "not relevant"))
-    fun adjusted(ro: String, samples: Int, adjustment: Int) = RoSize(ro, Adjusted(adjustment, samples, "not relevant"))
+
+    fun adjusted(ro: String, samples: Int, adjustment: Int): RoSize {
+        val type = if (adjustment > 0) INCREASED_FOR_RO else DECREASED_FOR_RO
+        return RoSize(ro, SampleSize(samples - adjustment, "not relevant").update(type, samples))
+    }
+
+    fun unmodified(ro: String, samples: Int) = RoSize(ro, SampleSize(samples, "not relevant"))
 
 }
