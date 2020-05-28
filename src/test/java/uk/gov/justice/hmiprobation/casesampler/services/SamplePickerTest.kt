@@ -13,7 +13,7 @@ import uk.gov.justice.hmiprobation.casesampler.dto.Stratum
 import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.FEMALE
 import uk.gov.justice.hmiprobation.casesampler.dto.Stratum.MALE_COMMUNITY_LOW
 import uk.gov.justice.hmiprobation.casesampler.utils.Result
-import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
+import uk.gov.justice.hmiprobation.casesampler.utils.SampleSize
 import java.time.LocalDate
 import kotlin.random.Random
 

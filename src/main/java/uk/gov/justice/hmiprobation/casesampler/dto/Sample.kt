@@ -1,7 +1,7 @@
 package uk.gov.justice.hmiprobation.casesampler.dto
 
 import uk.gov.justice.hmiprobation.casesampler.services.AllocationData
-import uk.gov.justice.hmiprobation.casesampler.utils.Size.SampleSize
+import uk.gov.justice.hmiprobation.casesampler.utils.SampleSize
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
