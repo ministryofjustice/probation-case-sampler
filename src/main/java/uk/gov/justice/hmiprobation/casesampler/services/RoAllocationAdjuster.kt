@@ -2,16 +2,11 @@ package uk.gov.justice.hmiprobation.casesampler.services
 
 import org.slf4j.LoggerFactory
 import uk.gov.justice.hmiprobation.casesampler.utils.Counter
-import uk.gov.justice.hmiprobation.casesampler.utils.Result
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSize
 import uk.gov.justice.hmiprobation.casesampler.utils.Type.DECREASED_FOR_RO
 import uk.gov.justice.hmiprobation.casesampler.utils.Type.INCREASED_FOR_RO
 
-data class RoSize(val ro: String, val size: SampleSize) {
-    constructor(pair: Pair<String, SampleSize>) : this(pair.first, pair.second)
-
-    fun toPair() = ro to size
-}
+typealias RoSize = Pair<String, SampleSize>
 
 /**
  *  Adjusts provided sample sizes so we don't take more than a given number of cases from a specific RO.
@@ -23,9 +18,9 @@ class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
 
     val roCaseCounter = Counter(maxAllowedCasesPerRo)
 
-    fun adjust(sizes: List<Result<String>>): List<RoSize> {
+    fun adjust(sizes: List<RoSize>): List<RoSize> {
 
-        val reducedSizes = sizes.map { reduceSizesThatExceedCapacity(it.key, it.size) }
+        val reducedSizes = sizes.map { (ro, size) -> reduceSizesThatExceedCapacity(ro, size) }
 
         val numberOfRemovedCases = numberOfRemovedCase(reducedSizes)
 
@@ -60,13 +55,13 @@ class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
      * @return modified sample sizes of each RO in alphabetic order of the RO's name
      * */
     private fun reallocateRemovedCases(roSizes: List<RoSize>, numberOfRemovedCases: Int): List<RoSize> {
-        val roToSize = roSizes.map { it.toPair() }.toMap().toMutableMap()
+        val roToSize = roSizes.toMap().toMutableMap()
 
         val infiniteRos = infiniteRoIterator(roSizes)
 
         (0 until numberOfRemovedCases).forEach { allocateCase(roToSize, infiniteRos) }
 
-        return roToSize.toList().map { RoSize(it) }.sortedBy { it.ro }
+        return roToSize.toList().sortedBy { (ro, _) -> ro }
     }
 
     private fun allocateCase(roToSize: MutableMap<String, SampleSize>, infiniteRos: Iterator<String>) {

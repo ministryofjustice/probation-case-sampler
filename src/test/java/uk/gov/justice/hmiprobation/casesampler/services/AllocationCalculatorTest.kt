@@ -25,8 +25,7 @@ class AllocationCalculatorTest {
     @BeforeEach
     fun setup() {
         every { roAllocationAdjuster.adjust(any()) } answers {
-            val results = it.invocation.args[0] as List<Result<String>>
-            results.map { RoSize(it.key, it.size) }
+             it.invocation.args[0] as List<Result<String>>
         }
     }
 
@@ -195,17 +194,16 @@ class AllocationCalculatorTest {
 
         val cases = results.flatMap { it.getRandomSamples() }
 
-        //Asked for 6 but got 7!
-        assertThat(cases).hasSize(7)
+        assertThat(cases).hasSize(6)
 
-        assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(5)
+        assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(4)
         assertThat(cases).filteredOn { it.cluster == "N02" }.hasSize(2)
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro1" }.hasSize(1)
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro2" }.hasSize(2)
-        assertThat(cases).filteredOn { it.responsibleOfficer == "ro3" }.hasSize(2)
+        assertThat(cases).filteredOn { it.responsibleOfficer == "ro3" }.hasSize(1)
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro4" }.hasSize(2)
         assertThat(cases).filteredOn { it.ldu == "LDU01" }.hasSize(3)
-        assertThat(cases).filteredOn { it.ldu == "LDU02" }.hasSize(2)
+        assertThat(cases).filteredOn { it.ldu == "LDU02" }.hasSize(1)
         assertThat(cases).filteredOn { it.ldu == "LDU03" }.hasSize(2)
     }
 
@@ -300,7 +298,7 @@ class AllocationCalculatorTest {
         assertThat(data).hasSize(3)
 
         val cases = results.flatMap { it.getRandomSamples() }
-        assertThat(cases).hasSize(11)
+        assertThat(cases).hasSize(11) // TODO - can still get less samples than required due to RO allocation attempting to request more samples than present
 
         assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(11)
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro1" }.hasSize(6)

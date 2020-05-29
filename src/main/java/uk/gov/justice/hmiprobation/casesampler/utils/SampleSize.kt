@@ -2,13 +2,13 @@ package uk.gov.justice.hmiprobation.casesampler.utils
 
 import uk.gov.justice.hmiprobation.casesampler.utils.Type.INITIAL
 
-enum class Type { INITIAL, WITH_BUFFER, ROUNDED, INCREASED_FOR_RO, DECREASED_FOR_RO }
+enum class Type { INITIAL, WITH_BUFFER, INCREASED_FOR_ROUNDING, DECREASED_FOR_ROUNDING, INCREASED_FOR_RO, DECREASED_FOR_RO }
 
 data class PreviousValue(val type: Type, val numberOfSamples: Int)
 
 data class SampleSize(
         val count: Int,
-        val originalPercentage: String,
+        val originalPercentage: String = "",
         val type: Type = INITIAL,
         val previousValues: List<PreviousValue> = listOf()) {
 
