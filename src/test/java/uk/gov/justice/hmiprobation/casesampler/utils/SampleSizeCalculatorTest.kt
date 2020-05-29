@@ -1,14 +1,16 @@
 package uk.gov.justice.hmiprobation.casesampler.utils
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSizeCalculatorTest.TestType.A
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSizeCalculatorTest.TestType.B
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSizeCalculatorTest.TestType.C
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSizeCalculatorTest.TestType.D
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSizeCalculatorTest.TestType.E
+import uk.gov.justice.hmiprobation.casesampler.utils.Type.DECREASED_FOR_ROUNDING
+import uk.gov.justice.hmiprobation.casesampler.utils.Type.INCREASED_FOR_ROUNDING
 import uk.gov.justice.hmiprobation.casesampler.utils.Type.WITH_BUFFER
+import kotlin.math.roundToInt
 
 
 class SampleSizeCalculatorTest {
@@ -31,7 +33,7 @@ class SampleSizeCalculatorTest {
     }
 
     @Test
-    fun `can end up with less samples than requested`() {
+    fun `can't end up with less samples than requested`() {
 
         val sizes = calculateSampleSize(10, mapOf(
                 A to listOfSize(50),
@@ -40,7 +42,7 @@ class SampleSizeCalculatorTest {
         ))
 
         assertThat(sizes).isEqualTo(listOf(
-                Result(A, SampleSize(3, "33.33")),
+                Result(A, SampleSize(3, "33.33").update(INCREASED_FOR_ROUNDING, 4)),
                 Result(B, SampleSize(3, "33.33")),
                 Result(C, SampleSize(3, "33.33"))
         ))
@@ -58,7 +60,7 @@ class SampleSizeCalculatorTest {
         ))
 
         assertThat(sizes).isEqualTo(listOf(
-                Result(A, SampleSize(55, "37.30")),
+                Result(A, SampleSize(55, "37.30").update(DECREASED_FOR_ROUNDING, 54)),
                 Result(B, SampleSize(17, "11.34")),
                 Result(C, SampleSize(40, "26.87")),
                 Result(D, SampleSize(16, "10.60")),
@@ -86,18 +88,31 @@ class SampleSizeCalculatorTest {
         ))
     }
 
-    @Disabled("Being fixed as part of DCS-497" )
     @Test
     fun `check rounding we don't get more samples than requested due to rounding `() {
 
-        (0..90).forEach {
+        (10..90).forEach {
             val sizes = calculateSampleSize(it, mapOf(
                     A to listOfSize(60),
                     B to listOfSize(30),
                     C to listOfSize(30)
             ))
 
-            assertThat(sizes.map { it.size.count }.sum()).isEqualTo(it)
+            assertThat(sizes.sumBy { (_, size) -> size.count }).isEqualTo(it)
+        }
+    }
+
+    @Test
+    fun `check rounding with buffer and we don't get more samples than requested due to rounding `() {
+
+        (10..90).forEach {
+            val sizes = calculateSampleSize(it, mapOf(
+                    A to listOfSize(60),
+                    B to listOfSize(30),
+                    C to listOfSize(30)
+            ), 10.0)
+
+            assertThat(sizes.sumBy { (_, size) -> size.count }).isEqualTo(it + (0.1 * it).roundToInt())
         }
     }
 }
