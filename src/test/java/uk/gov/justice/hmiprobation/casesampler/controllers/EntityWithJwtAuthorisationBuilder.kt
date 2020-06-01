@@ -11,13 +11,13 @@ import java.time.Duration
 @Component
 class EntityWithJwtAuthorisationBuilder(@Autowired val jwtAuthenticationHelper: JwtAuthenticationHelper) {
 
-    fun entityWithJwtAuthorisation(user: String, roles: List<String>, body: Any): HttpEntity<*> {
+    fun entityWithJwtAuthorisation(user: String, roles: List<String> = listOf(), body: Any): HttpEntity<*> {
         val headers = addCommonHeaders(user, roles)
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         return HttpEntity(body, headers)
     }
 
-    fun entityWithJwtAuthorisation(user: String, roles: List<String>): HttpEntity<*> = HttpEntity<Any>(null, addCommonHeaders(user, roles))
+    fun entityWithJwtAuthorisation(user: String, roles: List<String> = listOf()): HttpEntity<*> = HttpEntity<Any>(null, addCommonHeaders(user, roles))
 
     private fun addCommonHeaders(user: String, roles: List<String>): HttpHeaders {
         val headers = HttpHeaders()

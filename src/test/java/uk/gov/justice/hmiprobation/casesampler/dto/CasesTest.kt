@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 import uk.gov.justice.hmiprobation.casesampler.dto.Gender.FEMALE
 import uk.gov.justice.hmiprobation.casesampler.dto.Gender.MALE
 import uk.gov.justice.hmiprobation.casesampler.dto.Gender.OTHER
+import uk.gov.justice.hmiprobation.casesampler.dto.RiskOfSeriousHarmLevel.HIGH
 import uk.gov.justice.hmiprobation.casesampler.dto.RiskOfSeriousHarmLevel.LOW
-import uk.gov.justice.hmiprobation.casesampler.dto.RiskOfSeriousHarmLevel.NON_LOW
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType.COMMUNITY_SENTENCE
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType.POST_CUSTODY
 import java.time.LocalDate
@@ -122,11 +122,11 @@ class CasesTest {
                     .isEqualTo(Stratum.FEMALE)
 
             assertThat(case()
-                    .copy(gender = FEMALE, sentenceType = COMMUNITY_SENTENCE, roshClassification = NON_LOW).getStratum())
+                    .copy(gender = FEMALE, sentenceType = COMMUNITY_SENTENCE, roshClassification = HIGH).getStratum())
                     .isEqualTo(Stratum.FEMALE)
 
             assertThat(case()
-                    .copy(gender = FEMALE, sentenceType = POST_CUSTODY, roshClassification = NON_LOW).getStratum())
+                    .copy(gender = FEMALE, sentenceType = POST_CUSTODY, roshClassification = HIGH).getStratum())
                     .isEqualTo(Stratum.FEMALE)
         }
 
@@ -142,7 +142,7 @@ class CasesTest {
         fun `Check get Male Community Non Low`() {
 
             assertThat(case()
-                    .copy(gender = MALE, sentenceType = COMMUNITY_SENTENCE, roshClassification = NON_LOW).getStratum())
+                    .copy(gender = MALE, sentenceType = COMMUNITY_SENTENCE, roshClassification = HIGH).getStratum())
                     .isEqualTo(Stratum.MALE_COMMUNITY_NON_LOW)
         }
 
@@ -158,7 +158,7 @@ class CasesTest {
         fun `Check get Male Post Custody Non Low`() {
 
             assertThat(case()
-                    .copy(gender = MALE, sentenceType = POST_CUSTODY, roshClassification = NON_LOW).getStratum())
+                    .copy(gender = MALE, sentenceType = POST_CUSTODY, roshClassification = HIGH).getStratum())
                     .isEqualTo(Stratum.MALE_POST_CUSTODY_NON_LOW)
         }
 
@@ -167,7 +167,7 @@ class CasesTest {
 
             assertThatThrownBy {
                 (case()
-                        .copy(gender = OTHER, sentenceType = POST_CUSTODY, roshClassification = NON_LOW).getStratum())
+                        .copy(gender = OTHER, sentenceType = POST_CUSTODY, roshClassification = HIGH).getStratum())
             }.hasMessage("Cannot determine type of stratification")
         }
     }
@@ -180,7 +180,7 @@ class CasesTest {
              sentenceType = COMMUNITY_SENTENCE,
             crn = "1111",
             pnc = "2222",
-            roshClassification = NON_LOW,
+            roshClassification = HIGH,
             startDate = LocalDate.of(2020, 1, 2),
             endDate = LocalDate.of(2020, 2, 3),
             cluster = "N01",
