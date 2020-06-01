@@ -314,7 +314,7 @@ class AllocationCalculatorTest {
             sentenceType = SentenceType.COMMUNITY_SENTENCE,
             crn = "1111",
             pnc = "2222",
-            roshClassification = RiskOfSeriousHarmLevel.NON_LOW,
+            roshClassification = RiskOfSeriousHarmLevel.HIGH,
             startDate = LocalDate.of(2020, 1, 2),
             endDate = LocalDate.of(2020, 2, 3),
             cluster = cluster,
