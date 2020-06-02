@@ -25,19 +25,19 @@ class AllocationCalculatorTest {
     @BeforeEach
     fun setup() {
         every { roAllocationAdjuster.adjust(any()) } answers {
-             it.invocation.args[0] as List<Result<String>>
+            it.invocation.args[0] as List<Result<String>>
         }
     }
 
     @Test
     fun `check copes with empty cases`() {
-        assertThat(calculator.calculate(SampleSize(0, ""), listOf())).isEqualTo(listOf<RoAllocation>())
+        assertThat(calculator.calculate(SampleSize(0, 0), listOf())).isEqualTo(listOf<RoAllocation>())
     }
 
     @Test
-    fun `simple allocation`() {
+    fun `simple allocation with even split`() {
 
-        val results = calculator.calculate(SampleSize(4, ""), listOf(
+        val results = calculator.calculate(SampleSize(4, 8), listOf(
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01BBB", "ro2"),
@@ -52,25 +52,27 @@ class AllocationCalculatorTest {
         assertThat(data).hasSize(4)
         assertThat(data).filteredOn { it.cluster.id == "N01" }.containsExactly(
                 AllocationData(
-                        cluster = Info("N01", SampleSize(2, "50.00")),
-                        ldu = Info("N01AAA", SampleSize(1, "50.00")),
-                        ro = Info("ro1", SampleSize(1, "100.00"))
+                        cluster = Info("N01", SampleSize(2, 4, "50.00")),
+                        // 50% means within this cluster this is one LDU of two
+                        ldu = Info("N01AAA", SampleSize(1, 2, "50.00")),
+                        // 100% means within this LDU this is the only RO
+                        ro = Info("ro1", SampleSize(1, 2, "100.00"))
                 ),
                 AllocationData(
-                        cluster = Info("N01", SampleSize(2, "50.00")),
-                        ldu = Info("N01BBB", SampleSize(1, "50.00")),
-                        ro = Info("ro2", SampleSize(1, "100.00"))
+                        cluster = Info("N01", SampleSize(2, 4, "50.00")),
+                        ldu = Info("N01BBB", SampleSize(1, 2, "50.00")),
+                        ro = Info("ro2", SampleSize(1, 2, "100.00"))
                 ))
         assertThat(data).filteredOn { it.cluster.id == "N02" }.containsExactly(
                 AllocationData(
-                        cluster = Info("N02", SampleSize(2, "50.00")),
-                        ldu = Info("N02AAA", SampleSize(1, "50.00")),
-                        ro = Info("ro1", SampleSize(1, "100.00"))
+                        cluster = Info("N02", SampleSize(2, 4, "50.00")),
+                        ldu = Info("N02AAA", SampleSize(1, 2, "50.00")),
+                        ro = Info("ro1", SampleSize(1, 2, "100.00"))
                 ),
                 AllocationData(
-                        cluster = Info("N02", SampleSize(2, "50.00")),
-                        ldu = Info("N02BBB", SampleSize(1, "50.00")),
-                        ro = Info("ro2", SampleSize(1, "100.00"))
+                        cluster = Info("N02", SampleSize(2, 4, "50.00")),
+                        ldu = Info("N02BBB", SampleSize(1, 2, "50.00")),
+                        ro = Info("ro2", SampleSize(1, 2, "100.00"))
                 ))
     }
 
@@ -78,7 +80,7 @@ class AllocationCalculatorTest {
     @Test
     fun `simple allocation sample characteristics`() {
 
-        val results = calculator.calculate(SampleSize(4, ""), listOf(
+        val results = calculator.calculate(SampleSize(4, 8), listOf(
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01BBB", "ro2"),
@@ -105,7 +107,7 @@ class AllocationCalculatorTest {
     @Test
     fun `proportionality maintained at cluster level`() {
 
-        val results = calculator.calculate(SampleSize(4, ""), listOf(
+        val results = calculator.calculate(SampleSize(4, 6), listOf(
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01AAA", "ro1"),
 
@@ -117,8 +119,8 @@ class AllocationCalculatorTest {
 
         val data = results.map { it.allocationData }
         assertThat(data).hasSize(2)
-        assertThat(data.find { it.cluster.id == "N01" }).extracting { it!!.cluster }.isEqualTo(Info("N01", SampleSize(1, "33.33")))
-        assertThat(data.find { it.cluster.id == "N02" }).extracting { it!!.cluster }.isEqualTo(Info("N02", SampleSize(3, "66.67")))
+        assertThat(data.find { it.cluster.id == "N01" }).extracting { it!!.cluster }.isEqualTo(Info("N01", SampleSize(1, 2, "33.33")))
+        assertThat(data.find { it.cluster.id == "N02" }).extracting { it!!.cluster }.isEqualTo(Info("N02", SampleSize(3, 4, "66.67")))
 
         val cases = results.flatMap { it.getRandomSamples() }
         assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(1)
@@ -128,7 +130,7 @@ class AllocationCalculatorTest {
     @Test
     fun `proportionality maintained at ldu level`() {
 
-        val results = calculator.calculate(SampleSize(4, ""), listOf(
+        val results = calculator.calculate(SampleSize(4, 6), listOf(
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01BBB", "ro1"),
@@ -139,8 +141,8 @@ class AllocationCalculatorTest {
 
         val data = results.map { it.allocationData }
         assertThat(data).hasSize(2)
-        assertThat(data.find { it.ldu.id == "N01AAA" }).extracting { it!!.ldu }.isEqualTo(Info("N01AAA", SampleSize(1, "33.33")))
-        assertThat(data.find { it.ldu.id == "N01BBB" }).extracting { it!!.ldu }.isEqualTo(Info("N01BBB", SampleSize(3, "66.67")))
+        assertThat(data.find { it.ldu.id == "N01AAA" }).extracting { it!!.ldu }.isEqualTo(Info("N01AAA", SampleSize(1, 2, "33.33")))
+        assertThat(data.find { it.ldu.id == "N01BBB" }).extracting { it!!.ldu }.isEqualTo(Info("N01BBB", SampleSize(3, 4, "66.67")))
 
         val cases = results.flatMap { it.getRandomSamples() }
         assertThat(cases).filteredOn { it.ldu == "N01AAA" }.hasSize(1)
@@ -150,7 +152,7 @@ class AllocationCalculatorTest {
     @Test
     fun `proportionality maintained at ro level`() {
 
-        val results = calculator.calculate(SampleSize(4, ""), listOf(
+        val results = calculator.calculate(SampleSize(4, 6), listOf(
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01AAA", "ro1"),
                 case("N01", "N01AAA", "ro2"),
@@ -161,8 +163,8 @@ class AllocationCalculatorTest {
 
         val data = results.map { it.allocationData }
         assertThat(data).hasSize(2)
-        assertThat(data.find { it.ro.id == "ro1" }).extracting { it!!.ro }.isEqualTo(Info("ro1", SampleSize(1, "33.33")))
-        assertThat(data.find { it.ro.id == "ro2" }).extracting { it!!.ro }.isEqualTo(Info("ro2", SampleSize(3, "66.67")))
+        assertThat(data.find { it.ro.id == "ro1" }).extracting { it!!.ro }.isEqualTo(Info("ro1", SampleSize(1, 2,"33.33")))
+        assertThat(data.find { it.ro.id == "ro2" }).extracting { it!!.ro }.isEqualTo(Info("ro2", SampleSize(3, 4,"66.67")))
 
         val cases = results.flatMap { it.getRandomSamples() }
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro1" }.hasSize(1)
@@ -172,7 +174,7 @@ class AllocationCalculatorTest {
     @Test
     fun `complex allocation sample characteristics`() {
 
-        val results = calculator.calculate(SampleSize(6, ""), listOf(
+        val results = calculator.calculate(SampleSize(6, 12), listOf(
                 case("N01", "LDU01", "ro1"),
                 case("N01", "LDU01", "ro1"),
                 case("N01", "LDU01", "ro2"),
@@ -210,7 +212,7 @@ class AllocationCalculatorTest {
     @Test
     fun `complex allocation larger sample characteristics`() {
 
-        val results = calculator.calculate(SampleSize(12, ""), listOf(
+        val results = calculator.calculate(SampleSize(12, 24), listOf(
                 case("N01", "LDU01", "ro1"),
                 case("N01", "LDU01", "ro1"),
                 case("N01", "LDU01", "ro1"),
@@ -263,7 +265,7 @@ class AllocationCalculatorTest {
 
         val calculator = AllocationCalculator(RoAllocationAdjuster(6))
 
-        val results = calculator.calculate(SampleSize(12, ""), listOf(
+        val results = calculator.calculate(SampleSize(12, 24), listOf(
                 case("N01", "LDU01", "ro1"),
                 case("N01", "LDU01", "ro1"),
                 case("N01", "LDU01", "ro1"),

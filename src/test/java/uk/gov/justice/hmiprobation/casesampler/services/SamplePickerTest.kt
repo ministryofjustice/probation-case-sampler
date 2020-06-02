@@ -34,8 +34,8 @@ class SamplePickerTest {
     @Test
     fun `simple case`() {
         val sampleSizes = listOf(
-                sampleSize(MALE_COMMUNITY_LOW, 2),
-                sampleSize(FEMALE, 4))
+                Result(MALE_COMMUNITY_LOW, SampleSize(2, 4, "50.00")),
+                Result(FEMALE, SampleSize(4, 8, "50.00")))
 
         val cases = mapOf(
                 MALE_COMMUNITY_LOW to listOf(
@@ -57,23 +57,23 @@ class SamplePickerTest {
 
         assertThat(samplePicker.pick(sampleSizes, cases)).containsExactly(
                 Sample(MALE_COMMUNITY_LOW,
-                        SampleSize(2, "not relevant"),
+                        SampleSize(2, 4, "50.00"),
                         listOf(
                                 AllocationData(
-                                        cluster = Info("N01", SampleSize(2, "100.00")),
-                                        ldu = Info("N01LA2", SampleSize(2, "100.00")),
-                                        ro = Info("Mick Red", SampleSize(2, "100.00")))),
+                                        cluster = Info("N01", SampleSize(2, 4, "100.00")),
+                                        ldu = Info("N01LA2", SampleSize(2, 4, "100.00")),
+                                        ro = Info("Mick Red", SampleSize(2, 4, "100.00")))),
                         listOf(
                                 case(MALE_COMMUNITY_LOW, "03M"),
                                 case(MALE_COMMUNITY_LOW, "02M")
                         )),
                 Sample(FEMALE,
-                        SampleSize(4, "not relevant"),
+                        SampleSize(4, 8, "50.00"),
                         listOf(
                                 AllocationData(
-                                        cluster = Info("N01", SampleSize(4, "100.00")),
-                                        ldu = Info("N01LA2", SampleSize(4, "100.00")),
-                                        ro = Info("Mick Red", SampleSize(4, "100.00")))),
+                                        cluster = Info("N01", SampleSize(4, 8, "100.00")),
+                                        ldu = Info("N01LA2", SampleSize(4, 8, "100.00")),
+                                        ro = Info("Mick Red", SampleSize(4, 8, "100.00")))),
                         listOf(
                                 case(FEMALE, "07F"),
                                 case(FEMALE, "01F"),
@@ -81,9 +81,6 @@ class SamplePickerTest {
                                 case(FEMALE, "03F")
                         )))
     }
-
-
-    fun sampleSize(stratum: Stratum, samples: Int) = Result(stratum, SampleSize(samples, "not relevant"))
 
     fun case(stratum: Stratum, pnc: String) = Case(
             familyName = "Smith",

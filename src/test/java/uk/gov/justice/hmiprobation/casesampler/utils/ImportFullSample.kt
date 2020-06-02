@@ -49,35 +49,39 @@ class AnalyzeSampleFile(
 
         val sampleProvisionalDetail = objectMapper.readValue(response.body, PrimaryCaseSampleProvisionalDetail::class.java)
 
-        with (sampleProvisionalDetail) {
+        with(sampleProvisionalDetail) {
+            val totalCount = stratum.sumBy { it.size.count }
+
+            val realPercentage: (Int, SampleSize) -> String = { total, group -> "%.2f".format(group.count.toDouble() / total * 100) }
+
             println("""
-                Id:                            ${id}
-                Timestamp:                     $timestamp
-                Total requested sample size:   ${stratum.sumBy { it.size.count }}
+                Id:                      $id
+                Timestamp:               $timestamp
+                Total sample size:       $totalCount
                 Stratum Summary:
             """.trimIndent())
 
             stratum.forEach {
-                with (it) {
-                    println("""
-                        - name: ${name.name.padEnd(30)} size: ${size.count.toString().padEnd(5)} (${size.originalPercentage})
-                    """.trimIndent())
+                with(it) {
+                    val stratumSize = "${it.size.count}/${it.size.total}".padEnd(8)
+                    println("- name: ${name.name.padEnd(30)} size: ${stratumSize} (original: ${size.originalPercentage}%, actual: ${realPercentage(totalCount, it.size)}%)")
                 }
             }
 
             println("\n\n")
 
-            stratum.forEach {
-                with (it) {
-                    println("$name:")
-                    it.clusters.forEach {
-                        println("- name: ${it.name.padEnd(30)} size: ${it.size.count.toString().padEnd(5)} (${it.size.originalPercentage})")
-                    }
-                    println("\n")
+            stratum.forEach { stratum ->
+                val stratumSize = "${stratum.size.count}/${stratum.size.total}".padEnd(8)
+                println("${stratum.name} count: $stratumSize")
+                stratum.clusters.forEach { cluster ->
+                    val size = "${cluster.size.count}/${cluster.size.total}".padEnd(8)
+                    val actual = realPercentage(stratum.size.count, cluster.size)
+                    println("- name: ${cluster.name.padEnd(30)} size: ${size} (original: ${cluster.size.originalPercentage}%, actual: $actual%)")
                 }
+                println("\n")
             }
         }
     }
-
 }
+
 
