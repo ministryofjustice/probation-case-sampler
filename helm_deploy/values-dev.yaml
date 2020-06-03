@@ -6,7 +6,6 @@ replicaCount: 2
 image:
   repository: quay.io/hmpps/probation-case-sampler
   tag: latest
-  pullPolicy: Always
   port: 8080
 
 ingress:

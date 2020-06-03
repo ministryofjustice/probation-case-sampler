@@ -12,9 +12,9 @@ class SamplePicker(val random: Random = Random) {
         val allocationCalculator = AllocationCalculator(RoAllocationAdjuster())
 
         val samples = sampleSizes.map { (stratum, size) ->
-            val allocations = allocationCalculator.calculate(size, casesByStratum[stratum]!!)
-            val cases = allocations.flatMap { it.getRandomSamples(random) }
-            val allocationData = allocations.map { it.allocationData }
+            val buckets = allocationCalculator.calculate(size, casesByStratum[stratum]!!)
+            val cases = buckets.flatMap { it.getRandomSamples(random) }
+            val allocationData = buckets.map { it.allocationData }
             Sample(stratum, size, allocationData, cases)
         }
 

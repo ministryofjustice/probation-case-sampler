@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.CellType
+import org.apache.poi.ss.usermodel.CellType.BOOLEAN
+import org.apache.poi.ss.usermodel.CellType.NUMERIC
+import org.apache.poi.ss.usermodel.CellType.STRING
 import org.apache.poi.ss.usermodel.DateUtil
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory
@@ -81,15 +83,16 @@ class FileConverter {
                 .toList()
     }
 
-    private fun readCell(cell: Cell): Any = when (cell.cellTypeEnum) {
+    private fun readCell(cell: Cell): Any = when (cell.cellType) {
 
-        CellType.NUMERIC -> if (DateUtil.isCellDateFormatted(cell))
+        NUMERIC -> if (DateUtil.isCellDateFormatted(cell))
             cell.dateCellValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
         else cell.numericCellValue
 
-        CellType.STRING -> cell.stringCellValue.trim()
+        STRING -> cell.stringCellValue.trim()
 
-        CellType.BOOLEAN -> cell.booleanCellValue
+        BOOLEAN -> cell.booleanCellValue
+
         else -> ""
     }
 

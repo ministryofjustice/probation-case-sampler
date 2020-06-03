@@ -111,6 +111,23 @@ class RoAllocationAdjusterTest {
     }
 
     @Test
+    fun `won't assign cases beyond max limit`() {
+        assertThat(adjuster.adjust(listOf(
+                sampleSize("ro1", 3, 3),
+                sampleSize("ro2", 7, 7),
+                sampleSize("ro3", 4, 5)
+        ))).containsExactly(
+                unmodified("ro1", 3, 3),
+                adjusted("ro2", 6, 7, -1),
+                adjusted("ro3", 5, 5, +1)
+        )
+
+        assertThat(adjuster.roCaseCounter.size("ro1")).isEqualTo(3)
+        assertThat(adjuster.roCaseCounter.size("ro2")).isEqualTo(6)
+        assertThat(adjuster.roCaseCounter.size("ro3")).isEqualTo(5)
+    }
+
+    @Test
     fun `re-allocating two values`() {
         assertThat(adjuster.adjust(listOf(
                 sampleSize("ro1", 4, 5),
