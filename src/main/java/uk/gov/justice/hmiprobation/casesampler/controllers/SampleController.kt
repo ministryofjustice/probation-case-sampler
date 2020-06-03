@@ -2,6 +2,7 @@ package uk.gov.justice.hmiprobation.casesampler.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.beans.factory.annotation.Value
@@ -27,10 +28,10 @@ class SampleController(val caseListService: CaseListService,
     @PostMapping(value = ["/sample"] ,consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ApiOperation(value = "Takes a Primary Case Sample and produces a Primary Case Sample Provisional")
     @ApiResponses(value = [
-        ApiResponse(code = 200, message = "OK", response = String::class)
+        ApiResponse(code = 200, message = "OK", response = PrimaryCaseSampleProvisionalSummary::class)
     ])
     fun createSample(@RequestBody cases: List<Case>,
-                     @RequestParam(required = true) size: Int): PrimaryCaseSampleProvisionalSummary {
+                     @ApiParam(value="Number of cases that should be present in the sample") @RequestParam(required = true) size: Int): PrimaryCaseSampleProvisionalSummary {
         val result = caseListService.process(size, buffer, cases)
         return PrimaryCaseSampleProvisionalSummary(result)
     }
@@ -38,10 +39,10 @@ class SampleController(val caseListService: CaseListService,
     @PostMapping(value = ["/analyse"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ApiOperation(value = "Takes a Primary Case Sample and produces a Primary Case Sample Provisional with stats")
     @ApiResponses(value = [
-        ApiResponse(code = 200, message = "OK", response = String::class)
+        ApiResponse(code = 200, message = "OK", response = PrimaryCaseSampleProvisionalDetail::class)
     ])
     fun analyse(@RequestBody cases: List<Case>,
-                @RequestParam(required = true) size: Int): PrimaryCaseSampleProvisionalDetail {
+                @ApiParam(value="Number of cases that should be present in the sample") @RequestParam(required = true) size: Int): PrimaryCaseSampleProvisionalDetail {
         val result = caseListService.process(size, buffer, cases)
         return PrimaryCaseSampleProvisionalDetail(result)
     }
