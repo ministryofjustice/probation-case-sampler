@@ -68,7 +68,7 @@ class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
         (0 until roToSize.size).forEach { // <- make sure we don't retry previously seen ROs
             val ro = infiniteRos.next()
 
-            if (roCaseCounter.canIncrement(ro)) {
+            if (canAddAnotherCase(ro, roToSize)) {
                 addCaseToRo(ro, roToSize)
                 return
             } else {
@@ -77,6 +77,9 @@ class RoAllocationAdjuster(val maxAllowedCasesPerRo: Int = 6) {
         }
         log.warn("Couldn't allocate sample as no capacity left")
     }
+
+    private fun canAddAnotherCase(ro: String, roToSize: MutableMap<String, SampleSize>) =
+            roCaseCounter.canIncrement(ro) && roToSize[ro]!!.count + 1 <= roToSize[ro]!!.total
 
     private fun addCaseToRo(ro: String, roToSize: MutableMap<String, SampleSize>) {
         log.info("Current size of ${ro} is ${roCaseCounter.size(ro)}, allocating additional case")

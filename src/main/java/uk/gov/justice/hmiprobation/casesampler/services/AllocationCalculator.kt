@@ -10,7 +10,8 @@ data class Info(val id: String, val size: SampleSize)
 
 data class AllocationData(val cluster: Info, val ldu: Info, val ro: Info)
 
-data class RoAllocation(val allocationData: AllocationData, val cases: List<Case>) {
+/** Represents a the samples that should be taken for a specific cluster, ldu, ro combination */
+data class Bucket(val allocationData: AllocationData, val cases: List<Case>) {
 
     fun getRandomSamples(random: Random = Random) = cases.shuffled(random).take(allocationData.ro.size.count)
 }
@@ -23,29 +24,29 @@ data class RoAllocation(val allocationData: AllocationData, val cases: List<Case
  */
 class AllocationCalculator(val roAllocationAdjuster: RoAllocationAdjuster) {
 
-    fun calculate(size: SampleSize, cases: List<Case>): List<RoAllocation> {
+    fun calculate(size: SampleSize, cases: List<Case>): List<Bucket> {
         val casesByCluster = cases.groupBy { it.cluster }
 
         val clusterSizes = calculateSampleSize(size.count, casesByCluster)
 
         return clusterSizes.fold(mutableListOf()) { result, (cluster, size) ->
-            result.addAll(toRoAllocation(Info(cluster, size), casesByCluster[cluster]!!))
+            result.addAll(extractBuckets(Info(cluster, size), casesByCluster[cluster]!!))
             result
         }
     }
 
-    fun toRoAllocation(cluster: Info, cases: List<Case>): MutableList<RoAllocation> {
+    fun extractBuckets(cluster: Info, cases: List<Case>): MutableList<Bucket> {
         val casesByLdu = cases.groupBy { it.ldu }
 
         val lduSizes = calculateSampleSize(cluster.size.count, casesByLdu)
 
         return lduSizes.fold(mutableListOf()) { result, (ldu, size) ->
-            result.addAll(toRoAllocation(cluster, Info(ldu, size), casesByLdu[ldu]!!))
+            result.addAll(extractBuckets(cluster, Info(ldu, size), casesByLdu[ldu]!!))
             result
         }
     }
 
-    fun toRoAllocation(cluster: Info, ldu: Info, cases: List<Case>): Collection<RoAllocation> {
+    fun extractBuckets(cluster: Info, ldu: Info, cases: List<Case>): Collection<Bucket> {
         val casesByRo = cases.groupBy { it.responsibleOfficer }
 
         val sampleSizesForRo = calculateSampleSize(ldu.size.count, casesByRo)
@@ -54,7 +55,7 @@ class AllocationCalculator(val roAllocationAdjuster: RoAllocationAdjuster) {
         val roSizes = roAllocationAdjuster.adjust(sampleSizesForRo)
 
         return roSizes.fold(mutableListOf()) { result, (ro, size) ->
-            result.add(RoAllocation(AllocationData(cluster, ldu, Info(ro, size)), casesByRo[ro]!!))
+            result.add(Bucket(AllocationData(cluster, ldu, Info(ro, size)), casesByRo[ro]!!))
             result
         }
     }

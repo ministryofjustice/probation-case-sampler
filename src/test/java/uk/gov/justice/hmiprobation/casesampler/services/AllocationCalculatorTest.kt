@@ -31,7 +31,7 @@ class AllocationCalculatorTest {
 
     @Test
     fun `check copes with empty cases`() {
-        assertThat(calculator.calculate(SampleSize(0, 0), listOf())).isEqualTo(listOf<RoAllocation>())
+        assertThat(calculator.calculate(SampleSize(0, 0), listOf())).isEqualTo(listOf<Bucket>())
     }
 
     @Test
@@ -300,11 +300,11 @@ class AllocationCalculatorTest {
         assertThat(data).hasSize(3)
 
         val cases = results.flatMap { it.getRandomSamples() }
-        assertThat(cases).hasSize(11) // TODO - can still get less samples than required due to RO allocation attempting to request more samples than present
+        assertThat(cases).hasSize(12)
 
-        assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(11)
+        assertThat(cases).filteredOn { it.cluster == "N01" }.hasSize(12)
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro1" }.hasSize(6)
-        assertThat(cases).filteredOn { it.responsibleOfficer == "ro2" }.hasSize(3)
+        assertThat(cases).filteredOn { it.responsibleOfficer == "ro2" }.hasSize(4)
         assertThat(cases).filteredOn { it.responsibleOfficer == "ro3" }.hasSize(2)
     }
 
