@@ -62,12 +62,12 @@ class SampleControllerIntegrationTest(
                 timestamp = LocalDateTime.of(2020, 1, 2, 12, 30),
                 results = listOf(StratumResult(
                         MALE_POST_CUSTODY_NON_LOW,
-                        SampleSize(1),
+                        SampleSize(1 ,1, "100.00"),
                         listOf(
                                 AllocationData(
-                                        cluster = Info("Westeros", SampleSize(1)),
-                                        ldu = Info("Winterfell", SampleSize(1)),
-                                        ro = Info("ZN", SampleSize(1))
+                                        cluster = Info("Westeros", SampleSize(1, 1, "100.00")),
+                                        ldu = Info("Winterfell", SampleSize(1, 1, "100.00")),
+                                        ro = Info("ZN", SampleSize(1, 1, "100.00"))
                                 )),
                         listOf(Row("001", case))))
         ))

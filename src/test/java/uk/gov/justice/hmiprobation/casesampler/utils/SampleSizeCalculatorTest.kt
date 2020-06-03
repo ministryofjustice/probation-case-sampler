@@ -27,8 +27,8 @@ class SampleSizeCalculatorTest {
                 B to listOfSize(50)))
 
         assertThat(sizes).isEqualTo(listOf(
-                Result(A, SampleSize(5, "50.00")),
-                Result(B, SampleSize(5, "50.00"))
+                Result(A, SampleSize(5, 50, "50.00")),
+                Result(B, SampleSize(5, 50, "50.00"))
         ))
     }
 
@@ -42,9 +42,9 @@ class SampleSizeCalculatorTest {
         ))
 
         assertThat(sizes).isEqualTo(listOf(
-                Result(A, SampleSize(3, "33.33").update(INCREASED_FOR_ROUNDING, 4)),
-                Result(B, SampleSize(3, "33.33")),
-                Result(C, SampleSize(3, "33.33"))
+                Result(A, SampleSize(3, 50, "33.33").update(INCREASED_FOR_ROUNDING, 4)),
+                Result(B, SampleSize(3, 50, "33.33")),
+                Result(C, SampleSize(3, 50, "33.33"))
         ))
     }
 
@@ -60,11 +60,11 @@ class SampleSizeCalculatorTest {
         ))
 
         assertThat(sizes).isEqualTo(listOf(
-                Result(A, SampleSize(55, "37.30").update(DECREASED_FOR_ROUNDING, 54)),
-                Result(B, SampleSize(17, "11.34")),
-                Result(C, SampleSize(40, "26.87")),
-                Result(D, SampleSize(16, "10.60")),
-                Result(E, SampleSize(21, "13.89"))
+                Result(A, SampleSize(55, 454, "37.30").update(DECREASED_FOR_ROUNDING, 54)),
+                Result(B, SampleSize(17, 138, "11.34")),
+                Result(C, SampleSize(40, 327, "26.87")),
+                Result(D, SampleSize(16, 129, "10.60")),
+                Result(E, SampleSize(21, 169, "13.89"))
         ))
     }
 
@@ -80,11 +80,11 @@ class SampleSizeCalculatorTest {
         ), 20.00)
 
         assertThat(sizes).isEqualTo(listOf(
-                Result(A, SampleSize(55, "37.30").update(WITH_BUFFER, 66)),
-                Result(B, SampleSize(17, "11.34").update(WITH_BUFFER, 20)),
-                Result(C, SampleSize(40, "26.87").update(WITH_BUFFER, 48)),
-                Result(D, SampleSize(16, "10.60").update(WITH_BUFFER, 19)),
-                Result(E, SampleSize(21, "13.89").update(WITH_BUFFER, 25))
+                Result(A, SampleSize(55, 454, "37.30").update(WITH_BUFFER, 66)),
+                Result(B, SampleSize(17, 138, "11.34").update(WITH_BUFFER, 20)),
+                Result(C, SampleSize(40, 327, "26.87").update(WITH_BUFFER, 48)),
+                Result(D, SampleSize(16, 129, "10.60").update(WITH_BUFFER, 19)),
+                Result(E, SampleSize(21, 169, "13.89").update(WITH_BUFFER, 25))
         ))
     }
 

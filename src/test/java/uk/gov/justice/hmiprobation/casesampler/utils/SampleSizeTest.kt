@@ -14,10 +14,10 @@ class SampleSizeTest {
     fun `check update`() {
 
         assertThat(
-                SampleSize(1, "100%")
+                SampleSize(1, 1, "100%")
                         .update(WITH_BUFFER, 5)
         ).isEqualTo(
-                SampleSize(5, "100%", WITH_BUFFER, listOf(
+                SampleSize(5, 1,"100%", WITH_BUFFER, listOf(
                         PreviousValue(INITIAL, 1)
                 ))
         )
@@ -27,12 +27,12 @@ class SampleSizeTest {
     fun `check multiple updates`() {
 
         assertThat(
-                SampleSize(1, "100%")
+                SampleSize(1, 1, "100%")
                         .update(WITH_BUFFER, 5)
                         .update(INCREASED_FOR_RO, 4)
                         .update(DECREASED_FOR_RO, 6)
         ).isEqualTo(
-                SampleSize(6, "100%", DECREASED_FOR_RO, listOf(
+                SampleSize(6, 1, "100%", DECREASED_FOR_RO, listOf(
                         PreviousValue(INITIAL, 1),
                         PreviousValue(WITH_BUFFER, 5),
                         PreviousValue(INCREASED_FOR_RO, 4)
@@ -45,7 +45,7 @@ class SampleSizeTest {
     fun `update ignores merges subsequent event types`() {
 
         assertThat(
-                SampleSize(1, "100%")
+                SampleSize(1, 1, "100%")
                         .update(WITH_BUFFER, 5)
                         .update(WITH_BUFFER, 6)
                         .update(INCREASED_FOR_RO, 4)
@@ -53,7 +53,7 @@ class SampleSizeTest {
                         .update(WITH_BUFFER, 6)
                         .update(DECREASED_FOR_RO, 7)
         ).isEqualTo(
-                SampleSize(7, "100%", DECREASED_FOR_RO, listOf(
+                SampleSize(7, 1, "100%", DECREASED_FOR_RO, listOf(
                         PreviousValue(INITIAL, 1),
                         PreviousValue(WITH_BUFFER, 6),
                         PreviousValue(INCREASED_FOR_RO, 2),
@@ -65,7 +65,7 @@ class SampleSizeTest {
     @Test
     fun `check positive size of change`() {
 
-        assertThat(SampleSize(1, "100%")
+        assertThat(SampleSize(1, 1, "100%")
                 .update(WITH_BUFFER, 5)
                 .previousChange()).isEqualTo(4)
     }
@@ -73,7 +73,7 @@ class SampleSizeTest {
     @Test
     fun `check negative size of change`() {
 
-        assertThat(SampleSize(5, "100%")
+        assertThat(SampleSize(5, 5, "100%")
                 .update(WITH_BUFFER, 1)
                 .previousChange()).isEqualTo(-4)
     }
@@ -81,7 +81,7 @@ class SampleSizeTest {
     @Test
     fun `check size of change with merged events`() {
 
-        assertThat(SampleSize(1, "100%")
+        assertThat(SampleSize(1, 1, "100%")
                 .update(WITH_BUFFER, 2)
                 .update(WITH_BUFFER, 4)
                 .update(WITH_BUFFER, 6)
@@ -92,7 +92,7 @@ class SampleSizeTest {
     @Test
     fun `check size of change is always based on last change`() {
 
-        assertThat(SampleSize(1, "100%")
+        assertThat(SampleSize(1, 1, "100%")
                 .update(WITH_BUFFER, 2)
                 .update(INCREASED_FOR_RO, 4)
                 .update(DECREASED_FOR_RO, 6)

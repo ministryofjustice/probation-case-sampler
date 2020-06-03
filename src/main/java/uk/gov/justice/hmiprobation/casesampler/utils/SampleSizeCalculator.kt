@@ -11,7 +11,7 @@ fun <K> calculateSampleSize(
         groupedByType: Map<K, List<Any>>,
         bufferPercentage: Double = 0.0): SampleSizes<K> {
     val results = calculateProportions(groupedByType).map { (type, proportion) ->
-        Result(type, toSampleSize(numberOfSamples, bufferPercentage, proportion))
+        Result(type, toSampleSize(numberOfSamples, groupedByType[type]?.size ?: 0, bufferPercentage, proportion))
     }
 
     val buffer = calculateBuffer(numberOfSamples, bufferPercentage)
@@ -23,15 +23,15 @@ fun <K> calculateProportions(groupedByType: Map<K, List<Any>>): Map<K, Double> {
     return groupedByType.mapValues { (it.value.size.toDouble() / totalCases) }
 }
 
-fun toSampleSize(numberOfSamples: Int, bufferPercentage: Double, proportion: Double): SampleSize {
+fun toSampleSize(numberOfSamples: Int, total: Int, bufferPercentage: Double, proportion: Double): SampleSize {
     val base = (numberOfSamples * proportion).roundToInt()
     val buffer = calculateBuffer(base, bufferPercentage)
     val originalPercentage = "%.2f".format(proportion * 100)
 
     return if (buffer > 0) {
-        SampleSize(base, originalPercentage).update(WITH_BUFFER, base + buffer)
+        SampleSize(base, total, originalPercentage).update(WITH_BUFFER, base + buffer)
     } else {
-        SampleSize(base, originalPercentage)
+        SampleSize(base, total, originalPercentage)
     }
 }
 

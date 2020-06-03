@@ -8,12 +8,14 @@ data class PreviousValue(val type: Type, val numberOfSamples: Int)
 
 data class SampleSize(
         val count: Int,
+        val total: Int,
         val originalPercentage: String = "",
         val type: Type = INITIAL,
         val previousValues: List<PreviousValue> = listOf()) {
 
     fun update(newType: Type, newCount: Int): SampleSize = SampleSize(
             type = newType,
+            total = total,
             count = newCount,
             originalPercentage = originalPercentage,
             // only bother adding history entry if new type of change
