@@ -101,6 +101,7 @@ MALE_POST_CUSTODY_NON_LOW count: 34/55
 
 
 Out of scope for this phase:
+* Exclude unpaid work cases where the work requirement is less than 40 hours
 * Domain 3 stratification
 * Retrieve data from community-api
 * Create probation areas register
