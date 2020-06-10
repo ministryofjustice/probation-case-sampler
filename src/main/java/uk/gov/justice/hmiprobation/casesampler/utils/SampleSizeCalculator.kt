@@ -24,12 +24,13 @@ fun <K> calculateProportions(groupedByType: Map<K, List<Any>>): Map<K, Double> {
 }
 
 fun toSampleSize(numberOfSamples: Int, total: Int, bufferPercentage: Double, proportion: Double): SampleSize {
-    val base = (numberOfSamples * proportion).roundToInt()
+    val base = Math.min(total, (numberOfSamples * proportion).roundToInt())
     val buffer = calculateBuffer(base, bufferPercentage)
     val originalPercentage = "%.2f".format(proportion * 100)
+    val adjustedValue = Math.min(total, base + buffer)
 
-    return if (buffer > 0) {
-        SampleSize(base, total, originalPercentage).update(WITH_BUFFER, base + buffer)
+    return if (base != adjustedValue) {
+        SampleSize(base, total, originalPercentage).update(WITH_BUFFER, adjustedValue)
     } else {
         SampleSize(base, total, originalPercentage)
     }

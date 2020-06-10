@@ -49,6 +49,22 @@ class SampleSizeCalculatorTest {
     }
 
     @Test
+    fun `can't end up with more samples than requested`() {
+
+        val sizes = calculateSampleSize(1000, mapOf(
+                A to listOfSize(50),
+                B to listOfSize(50),
+                C to listOfSize(50)
+        ))
+
+        assertThat(sizes).isEqualTo(listOf(
+                Result(A, SampleSize(50, 50, "33.33")),
+                Result(B, SampleSize(50, 50, "33.33")),
+                Result(C, SampleSize(50, 50, "33.33"))
+        ))
+    }
+
+    @Test
     fun `example from doc`() {
 
         val sizes = calculateSampleSize(148, mapOf(

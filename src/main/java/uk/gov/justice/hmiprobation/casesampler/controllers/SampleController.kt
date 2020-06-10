@@ -27,9 +27,6 @@ class SampleController(val caseListService: CaseListService,
 
     @PostMapping(value = ["/sample"] ,consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ApiOperation(value = "Takes a Primary Case Sample and produces a Primary Case Sample Provisional")
-    @ApiResponses(value = [
-        ApiResponse(code = 200, message = "OK", response = PrimaryCaseSampleProvisionalSummary::class)
-    ])
     fun createSample(@RequestBody cases: List<Case>,
                      @ApiParam(value="Number of cases that should be present in the sample") @RequestParam(required = true) size: Int): PrimaryCaseSampleProvisionalSummary {
         val result = caseListService.process(size, buffer, cases)
@@ -38,9 +35,6 @@ class SampleController(val caseListService: CaseListService,
 
     @PostMapping(value = ["/analyse"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ApiOperation(value = "Takes a Primary Case Sample and produces a Primary Case Sample Provisional with stats")
-    @ApiResponses(value = [
-        ApiResponse(code = 200, message = "OK", response = PrimaryCaseSampleProvisionalDetail::class)
-    ])
     fun analyse(@RequestBody cases: List<Case>,
                 @ApiParam(value="Number of cases that should be present in the sample") @RequestParam(required = true) size: Int): PrimaryCaseSampleProvisionalDetail {
         val result = caseListService.process(size, buffer, cases)

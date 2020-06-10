@@ -38,11 +38,20 @@ private fun <K> addAdditionalSamples(samplesToAdd: Int, results: List<Result<K>>
     val keyToSize = results.toMap().toMutableMap()
     val infiniteKeys = infiniteKeysIterator(results.sortedBy { (_, size) -> size.count })
     (0 until samplesToAdd).forEach {
-        val key = infiniteKeys.next()
-        keyToSize.computeIfPresent(key, { _, size -> size.update(INCREASED_FOR_ROUNDING, size.count + 1) })
+        addSample(keyToSize, infiniteKeys)
     }
 
     return keyToSize.toList()
+}
+
+private fun <K> addSample(keyToSize: MutableMap<K, SampleSize>, infiniteKeys: Iterator<K>) {
+    (0 until keyToSize.size).forEach {
+        val key = infiniteKeys.next()
+        if (keyToSize[key]!!.count < keyToSize[key]!!.total) {
+            keyToSize.computeIfPresent(key, { _, size -> size.update(INCREASED_FOR_ROUNDING, size.count + 1) })
+            return
+        }
+    }
 }
 
 private fun <K> infiniteKeysIterator(results: List<Result<K>>) = generateSequence {

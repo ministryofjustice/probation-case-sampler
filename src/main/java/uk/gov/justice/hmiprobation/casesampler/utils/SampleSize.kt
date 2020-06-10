@@ -13,14 +13,18 @@ data class SampleSize(
         val type: Type = INITIAL,
         val previousValues: List<PreviousValue> = listOf()) {
 
-    fun update(newType: Type, newCount: Int): SampleSize = SampleSize(
-            type = newType,
-            total = total,
-            count = newCount,
-            originalPercentage = originalPercentage,
-            // only bother adding history entry if new type of change
-            previousValues = if (newType == type) previousValues else previousValues + PreviousValue(type, count)
-    )
+    fun update(newType: Type, newCount: Int): SampleSize {
+        assert(newCount <= total, { "New count: $newCount exceeds total size: $total" })
+        assert(newCount >= 0, { "New count: $newCount is negative" })
+        return SampleSize(
+                type = newType,
+                total = total,
+                count = newCount,
+                originalPercentage = originalPercentage,
+                // only bother adding history entry if new type of change
+                previousValues = if (newType == type) previousValues else previousValues + PreviousValue(type, count)
+        )
+    }
 
     fun previousChange(): Int = if (previousValues.isEmpty()) count else count - previousValues.last().numberOfSamples
 }
