@@ -10,8 +10,6 @@ configurations {
     implementation { exclude(mapOf("module" to "tomcat-jdbc")) }
 }
 
-ext ["spring-security.version"] = "5.3.3.RELEASE"
-
 dependencies {
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
