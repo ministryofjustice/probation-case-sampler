@@ -1,7 +1,7 @@
 # Probation Case Sampler
 Produces a shortlist of cases for HMI Probation
 
-[![CircleCI](https://circleci.com/gh/ministryofjustice/probation-case-sampler/tree/master.svg?style=svg)](https://circleci.com/gh/ministryofjustice/probation-case-sampler)
+[![CircleCI](https://circleci.com/gh/ministryofjustice/probation-case-sampler/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/probation-case-sampler)
 
 ### Introduction
 
