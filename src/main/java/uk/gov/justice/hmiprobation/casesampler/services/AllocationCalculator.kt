@@ -10,7 +10,6 @@ data class Info(val id: String, val size: SampleSize)
 
 data class AllocationData(val cluster: Info, val ldu: Info, val ro: Info)
 
-/** Represents a the samples that should be taken for a specific cluster, ldu, ro combination */
 data class Bucket(val allocationData: AllocationData, val cases: List<Case>) {
 
     fun getRandomSamples(random: Random = Random) = cases.shuffled(random).take(allocationData.ro.size.count)
@@ -29,20 +28,18 @@ class AllocationCalculator(val roAllocationAdjuster: RoAllocationAdjuster) {
 
         val clusterSizes = calculateSampleSize(size.count, casesByCluster)
 
-        return clusterSizes.fold(mutableListOf()) { result, (cluster, size) ->
-            result.addAll(extractBuckets(Info(cluster, size), casesByCluster[cluster]!!))
-            result
+        return clusterSizes.flatMap {(cluster, size) ->
+            extractBuckets(Info(cluster, size), casesByCluster[cluster]!!)
         }
     }
 
-    fun extractBuckets(cluster: Info, cases: List<Case>): MutableList<Bucket> {
+    fun extractBuckets(cluster: Info, cases: List<Case>): List<Bucket> {
         val casesByLdu = cases.groupBy { it.ldu }
 
         val lduSizes = calculateSampleSize(cluster.size.count, casesByLdu)
 
-        return lduSizes.fold(mutableListOf()) { result, (ldu, size) ->
-            result.addAll(extractBuckets(cluster, Info(ldu, size), casesByLdu[ldu]!!))
-            result
+        return lduSizes.flatMap{ (ldu, size) ->
+            extractBuckets(cluster, Info(ldu, size), casesByLdu[ldu]!!)
         }
     }
 
@@ -54,9 +51,8 @@ class AllocationCalculator(val roAllocationAdjuster: RoAllocationAdjuster) {
         log.info("Adjusting sample sizes for ROs in LDU: ${ldu.id}")
         val roSizes = roAllocationAdjuster.adjust(sampleSizesForRo)
 
-        return roSizes.fold(mutableListOf()) { result, (ro, size) ->
-            result.add(Bucket(AllocationData(cluster, ldu, Info(ro, size)), casesByRo[ro]!!))
-            result
+        return roSizes.map {(ro, size) ->
+            Bucket(AllocationData(cluster, ldu, Info(ro, size)), casesByRo[ro]!!)
         }
     }
 
