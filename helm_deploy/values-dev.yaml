@@ -10,7 +10,7 @@ image:
 
 ingress:
   enabled: true
-  enable_whitelist: false
+  enable_allow_list: true
   host: probation-case-sampler-dev.prison.service.justice.gov.uk
   cert_secret: probation-case-sampler-cert
   path: /
@@ -19,10 +19,28 @@ env:
   JAVA_OPTS: "-Xmx512m"
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://gateway.t3.nomis-api.hmpps.dsd.io/auth/.well-known/jwks.json"
 
-whitelist:
+allow_list:
   office: "217.33.148.210/32"
   health-kick: "35.177.252.195/32"
   mojvpn: "81.134.202.29/32"
   cloudplatform-live1-1: "35.178.209.113/32"
   cloudplatform-live1-2: "3.8.51.207/32"
   cloudplatform-live1-3: "35.177.252.54/32"
+
+  trustmarque-uk-south-1: "51.140.74.14"
+  trustmarque-uk-south-2: "51.140.73.85"
+  trustmarque-uk-south-3: "51.140.78.44"
+  trustmarque-uk-south-4: "51.140.137.190"
+  trustmarque-uk-south-5: "51.140.153.135"
+  trustmarque-uk-south-6: "51.140.28.225"
+  trustmarque-uk-south-7: "51.140.142.28"
+  trustmarque-uk-south-8: "51.140.158.24"
+
+  trustmarque-uk-west-1: "51.141.54.185"
+  trustmarque-uk-west-2: "51.141.45.238"
+  trustmarque-uk-west-3: "51.141.47.136"
+  trustmarque-uk-west-4: "51.141.114.77"
+  trustmarque-uk-west-5: "51.141.112.112"
+  trustmarque-uk-west-6: "51.141.113.36"
+  trustmarque-uk-west-7: "51.141.118.119"
+  trustmarque-uk-west-8: "51.141.119.63"
