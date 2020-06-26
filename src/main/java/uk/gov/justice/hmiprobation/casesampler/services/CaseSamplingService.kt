@@ -6,9 +6,9 @@ import uk.gov.justice.hmiprobation.casesampler.dto.PrimaryCaseSampleProvisional
 import uk.gov.justice.hmiprobation.casesampler.utils.calculateSampleSize
 
 @Service
-class CaseListService(val samplePicker: SamplePicker = SamplePicker()) {
+class CaseSamplingService(val samplePicker: SamplePicker = SamplePicker()) {
 
-    fun process(sampleSize: Int, bufferPercentage: Double, longlist: PrimaryCaseSample): PrimaryCaseSampleProvisional {
+    fun createSample(sampleSize: Int, bufferPercentage: Double, longlist: PrimaryCaseSample): PrimaryCaseSampleProvisional {
 
         val casesByStratum = longlist.asSequence()
                 .filter { !it.isExcluded }
