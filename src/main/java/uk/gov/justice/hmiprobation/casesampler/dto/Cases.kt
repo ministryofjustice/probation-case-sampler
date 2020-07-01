@@ -104,7 +104,6 @@ data class Case(val familyName: String,
         return this === earliestCase
     }
 
-    @JsonIgnore
     fun getStratum() = when (gender) {
         Gender.FEMALE -> FEMALE
         Gender.MALE -> when (sentenceType) {
