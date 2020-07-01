@@ -12,9 +12,11 @@ import org.springframework.http.HttpMethod
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmiprobation.casesampler.controllers.EntityWithJwtAuthorisationBuilder
-import uk.gov.justice.hmiprobation.casesampler.dto.PrimaryCaseSampleProvisionalDetail
+import uk.gov.justice.hmiprobation.casesampler.dto.StratumDto
 import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
+import java.time.LocalDateTime
+import java.util.UUID
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -25,6 +27,8 @@ class AnalyzeSampleFile(
         @Autowired val testRestTemplate: TestRestTemplate,
         @Autowired val entityBuilder: EntityWithJwtAuthorisationBuilder,
         @Autowired val objectMapper: ObjectMapper) {
+
+    data class Stats(val id: UUID, val timestamp: LocalDateTime, val stratum: List<StratumDto>)
 
     @Test
     fun `Import file`() {
@@ -47,9 +51,9 @@ class AnalyzeSampleFile(
 
         File("src/test/resources/output.json").writeText(response.body!!, UTF_8)
 
-        val sampleProvisionalDetail = objectMapper.readValue(response.body, PrimaryCaseSampleProvisionalDetail::class.java)
+        val stats = objectMapper.readValue(response.body, Stats::class.java)
 
-        with(sampleProvisionalDetail) {
+        with(stats) {
             val totalCount = stratum.sumBy { it.size.count }
 
             val realPercentage: (Int, SampleSize) -> String = { total, group -> "%.2f".format(group.count.toDouble() / total * 100) }

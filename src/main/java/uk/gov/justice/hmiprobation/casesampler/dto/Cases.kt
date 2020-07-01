@@ -3,8 +3,6 @@ package uk.gov.justice.hmiprobation.casesampler.dto
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType.COMMUNITY_SENTENCE
 import uk.gov.justice.hmiprobation.casesampler.dto.SentenceType.POST_CUSTODY
@@ -24,17 +22,22 @@ typealias PrimaryCaseSample = List<Case>
 
 enum class Gender {
     @JsonProperty("M")
-    MALE, @JsonProperty("F")
+    MALE,
+
+    @JsonProperty("F")
     FEMALE, OTHER
 }
 
 enum class RiskOfSeriousHarmLevel(val low: Boolean) {
     @JsonAlias("RLRH")
     LOW(true),
+
     @JsonAlias("RMRH")
     MEDIUM(false),
+
     @JsonAlias("RHRH")
     HIGH(false),
+
     @JsonAlias("RVRH")
     VERY_HIGH(false)
 }

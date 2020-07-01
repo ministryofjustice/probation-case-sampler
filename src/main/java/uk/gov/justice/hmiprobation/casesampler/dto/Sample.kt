@@ -1,8 +1,11 @@
 package uk.gov.justice.hmiprobation.casesampler.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonUnwrapped
 import uk.gov.justice.hmiprobation.casesampler.services.AllocationData
 import uk.gov.justice.hmiprobation.casesampler.services.Info
 import uk.gov.justice.hmiprobation.casesampler.utils.SampleSize
+import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
@@ -27,22 +30,22 @@ data class PrimaryCaseSampleProvisional(val id: UUID, val timestamp: LocalDateTi
                             it.cases.map(toRow(rowNumberAssigner)))
                 }
 
-        private fun toRow(numberAssigner: RowNumberAssigner): (Case) -> Row = { Row(numberAssigner.nextId(), it) }
+        private fun toRow(numberAssigner: RowNumberAssigner): (Case) -> Row<Case> = { Row(numberAssigner.nextId(), it) }
     }
 }
 
 data class Sample(val stratum: Stratum, val size: SampleSize, val allocationData: List<AllocationData>, val cases: List<Case>)
 
-data class Row(val row: String, val case: Case)
+data class Row<T>(val row: String, @field:JsonUnwrapped val payload: T)
 
-data class StratumResult(val stratum: Stratum, val size: SampleSize, val allocationData: List<AllocationData>, val rows: List<Row>)
+data class StratumResult(val stratum: Stratum, val size: SampleSize, val allocationData: List<AllocationData>, val rows: List<Row<Case>>)
 
-data class PrimaryCaseSampleProvisionalSummary(val id: UUID, val timestamp: LocalDateTime, val results: List<Row>) {
+data class PrimaryCaseSampleProvisionalSummary(val id: UUID, val timestamp: LocalDateTime, val results: List<Row<Case>>) {
     constructor(data: PrimaryCaseSampleProvisional) : this(data.id, data.timestamp, data.results.flatMap { it.rows })
 }
 
 data class PrimaryCaseSampleProvisionalDetail(val id: UUID, val timestamp: LocalDateTime,
-                                              val results: List<Row>,
+                                              val results: List<Row<Case>>,
                                               val stratum: List<StratumDto>) {
     constructor(data: PrimaryCaseSampleProvisional) : this(
             data.id,
