@@ -49,8 +49,7 @@
       ]
     }
   ],
-  "results": {
-    "MALE_POST_CUSTODY_NON_LOW": [
+  "results": [
       {
         "row": "001",
         "case": {
@@ -69,7 +68,8 @@
           "team": "Stark",
           "responsibleOfficer": "ZN",
           "manager": "XA",
-          "officer": "Ned"
+          "officer": "Ned",
+          "stratum": "MALE_POST_CUSTODY_NON_LOW"
         }
       }
     ]

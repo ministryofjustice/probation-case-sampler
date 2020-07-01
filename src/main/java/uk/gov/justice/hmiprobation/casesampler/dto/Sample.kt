@@ -37,17 +37,17 @@ data class Row(val row: String, val case: Case)
 
 data class StratumResult(val stratum: Stratum, val size: SampleSize, val allocationData: List<AllocationData>, val rows: List<Row>)
 
-data class PrimaryCaseSampleProvisionalSummary(val id: UUID, val timestamp: LocalDateTime, val results: Map<Stratum, List<Row>>) {
-    constructor(data: PrimaryCaseSampleProvisional) : this(data.id, data.timestamp, data.results.map { it.stratum to it.rows }.toMap())
+data class PrimaryCaseSampleProvisionalSummary(val id: UUID, val timestamp: LocalDateTime, val results: List<Row>) {
+    constructor(data: PrimaryCaseSampleProvisional) : this(data.id, data.timestamp, data.results.flatMap { it.rows })
 }
 
 data class PrimaryCaseSampleProvisionalDetail(val id: UUID, val timestamp: LocalDateTime,
-                                              val results: Map<Stratum, List<Row>>,
+                                              val results: List<Row>,
                                               val stratum: List<StratumDto>) {
     constructor(data: PrimaryCaseSampleProvisional) : this(
             data.id,
             data.timestamp,
-            data.results.map { it.stratum to it.rows }.toMap(),
+            data.results.flatMap { it.rows },
             data.results.map {  StratumDto(it) }
     )
 }

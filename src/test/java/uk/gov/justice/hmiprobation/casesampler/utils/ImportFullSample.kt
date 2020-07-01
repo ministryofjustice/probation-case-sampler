@@ -42,7 +42,7 @@ class AnalyzeSampleFile(
         val response = testRestTemplate.exchange(
                 "/analyse?size=100",
                 HttpMethod.POST,
-                entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", body = json),
+                entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = json),
                 String::class.java)
 
         File("src/test/resources/output.json").writeText(response.body!!, UTF_8)

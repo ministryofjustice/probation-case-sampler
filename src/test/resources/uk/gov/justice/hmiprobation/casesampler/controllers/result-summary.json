@@ -1,8 +1,7 @@
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "timestamp": "2020-01-02T12:30:00",
-  "results": {
-    "MALE_POST_CUSTODY_NON_LOW": [
+  "results": [
       {
         "row": "001",
         "case": {
@@ -21,7 +20,8 @@
           "team": "Stark",
           "responsibleOfficer": "ZN",
           "manager": "XA",
-          "officer": "Ned"
+          "officer": "Ned",
+          "stratum": "MALE_POST_CUSTODY_NON_LOW"
         }
       }
     ]
