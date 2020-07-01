@@ -2,28 +2,26 @@
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "timestamp": "2020-01-02T12:30:00",
   "results": [
-      {
-        "row": "001",
-        "case": {
-          "familyName": "BK",
-          "firstName": "BK",
-          "dob": "13/11/1981",
-          "gender": "M",
-          "sentenceType": "POST_CUSTODY",
-          "crn": "R11111",
-          "pnc": "2000/0123456Q",
-          "roshClassification": "MEDIUM",
-          "startDate": "09/11/2018",
-          "endDate": "26/02/2019",
-          "cluster": "Westeros",
-          "ldu": "Winterfell",
-          "team": "Stark",
-          "responsibleOfficer": "ZN",
-          "manager": "XA",
-          "officer": "Ned",
-          "stratum": "MALE_POST_CUSTODY_NON_LOW"
-        }
-      }
-    ]
-  }
+    {
+      "row": "001",
+      "familyName": "BK",
+      "firstName": "BK",
+      "dob": "13/11/1981",
+      "gender": "M",
+      "sentenceType": "POST_CUSTODY",
+      "crn": "R11111",
+      "pnc": "2000/0123456Q",
+      "roshClassification": "MEDIUM",
+      "startDate": "09/11/2018",
+      "endDate": "26/02/2019",
+      "cluster": "Westeros",
+      "ldu": "Winterfell",
+      "team": "Stark",
+      "responsibleOfficer": "ZN",
+      "manager": "XA",
+      "officer": "Ned",
+      "stratum": "MALE_POST_CUSTODY_NON_LOW"
+    }
+  ]
+}
 }
