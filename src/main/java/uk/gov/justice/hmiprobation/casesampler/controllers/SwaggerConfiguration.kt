@@ -19,6 +19,12 @@ import springfox.documentation.service.VendorExtension
 import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
+import springfox.documentation.swagger.web.DocExpansion
+import springfox.documentation.swagger.web.ModelRendering
+import springfox.documentation.swagger.web.OperationsSorter
+import springfox.documentation.swagger.web.TagsSorter
+import springfox.documentation.swagger.web.UiConfiguration
+import springfox.documentation.swagger.web.UiConfigurationBuilder
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -49,9 +55,8 @@ class SwaggerConfiguration(buildProperties: BuildProperties) {
 
     private fun securityScheme(): SecurityScheme {
         val grantType = AuthorizationCodeGrantBuilder()
-                .tokenEndpoint(TokenEndpoint("http://localhost:9090/auth/oauth" + "/token", "oauthtoken"))
-                .tokenRequestEndpoint(
-                        TokenRequestEndpoint("http://localhost:9090/auth/oauth" + "/authorize", "swagger-client", "clientsecret"))
+                .tokenEndpoint { it.url("http://localhost:9090/auth/oauth/token").tokenName("oauthtoken")}
+                .tokenRequestEndpoint { it.url("http://localhost:9090/auth/oauth/authorize").clientIdName("swagger-client").clientSecretName("clientsecret")}
                 .build()
         return OAuthBuilder().name("spring_oauth")
                 .grantTypes(listOf(grantType))
@@ -65,9 +70,30 @@ class SwaggerConfiguration(buildProperties: BuildProperties) {
     )
 
 
+    @Bean
+    fun uiConfig(): UiConfiguration? {
+        return UiConfigurationBuilder.builder()
+                .deepLinking(true)
+                .displayOperationId(false)
+                .defaultModelsExpandDepth(3)
+                .defaultModelExpandDepth(3)
+                .defaultModelRendering(ModelRendering.EXAMPLE)
+                .displayRequestDuration(false)
+                .docExpansion(DocExpansion.LIST)
+                .filter(false)
+                .maxDisplayedTags(null)
+                .operationsSorter(OperationsSorter.ALPHA)
+                .showExtensions(false)
+                .showCommonExtensions(false)
+                .tagsSorter(TagsSorter.ALPHA)
+                .supportedSubmitMethods(UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS)
+                .validatorUrl(null)
+                .build()
+    }
+
+
     private fun securityContext() = SecurityContext.builder()
             .securityReferences(listOf(SecurityReference("spring_oauth", scopes())))
-            .forPaths(PathSelectors.regex("/.*"))
             .build()
 
 

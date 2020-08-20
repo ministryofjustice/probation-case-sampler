@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "0.4.6"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "0.4.8"
     kotlin("plugin.spring") version "1.3.72"
     kotlin("plugin.jpa") version "1.3.72"
 }
@@ -18,14 +18,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("io.springfox:springfox-swagger2:2.9.2")
-    implementation("io.springfox:springfox-swagger-ui:2.9.2")
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
     implementation("net.sf.ehcache:ehcache:2.10.6")
-    implementation("org.apache.commons:commons-lang3:3.10")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")
-    implementation( "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.0")
+    implementation("org.apache.commons:commons-lang3:3.11")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.2")
+    implementation( "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.2")
 
-    implementation("com.nimbusds:nimbus-jose-jwt:8.19")
+    implementation("com.nimbusds:nimbus-jose-jwt:8.20")
     implementation("com.google.guava:guava:29.0-jre")
 
 
