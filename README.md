@@ -59,7 +59,7 @@ that have been selected for the sample. (along with some metadata - Generated ID
 The `/analyse` endpoint also receives a json list of cases and produces the same sample information. Along with that it also produces information about how the allocation of samples across different
 Stratum, Clusters, LDUs and ROs was determined. 
 
-Swagger doc available here: https://probation-case-sampler-dev.prison.service.justice.gov.uk/swagger-ui.html#/
+Swagger doc available [here](https://probation-case-sampler-dev.prison.service.justice.gov.uk/swagger-ui/index.html)
 
 #### Testing with the example spreadsheet.
 
