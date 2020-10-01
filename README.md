@@ -2,6 +2,7 @@
 Produces a shortlist of cases for HMI Probation
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/probation-case-sampler/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/probation-case-sampler)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://probation-case-sampler-dev.prison.service.justice.gov.uk/swagger-ui/index.html)
 
 ### Introduction
 
@@ -58,8 +59,6 @@ that have been selected for the sample. (along with some metadata - Generated ID
 
 The `/analyse` endpoint also receives a json list of cases and produces the same sample information. Along with that it also produces information about how the allocation of samples across different
 Stratum, Clusters, LDUs and ROs was determined. 
-
-Swagger doc available [here](https://probation-case-sampler-dev.prison.service.justice.gov.uk/swagger-ui/index.html)
 
 #### Testing with the example spreadsheet.
 
