@@ -95,7 +95,7 @@ MALE_POST_CUSTODY_NON_LOW count: 34/55
 
 To grab a token from auth:
 ```
-TOKEN=$(curl -X POST "https://gateway.t3.nomis-api.hmpps.dsd.io/auth/oauth/token?grant_type=client_credentials" -H 'Content-Type: application/json' -H 'Content-Length: 0' -H "Authorization: Basic $(echo -n client:secret| base64)" | jq -r '.access_token')
+TOKEN=$(curl -X POST "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/oauth/token?grant_type=client_credentials" -H 'Content-Type: application/json' -H 'Content-Length: 0' -H "Authorization: Basic $(echo -n client:secret| base64)" | jq -r '.access_token')
 ```
 
 To create a sample:
