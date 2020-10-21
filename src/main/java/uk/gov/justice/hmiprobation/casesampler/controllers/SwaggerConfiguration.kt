@@ -111,7 +111,7 @@ class SwaggerConfiguration(buildProperties: BuildProperties) {
                 "HMIP Probation case sampler Documentation",
                 "Reference data API for Probation case sampling.",
                 version,
-                "https://gateway.nomis-api.service.justice.gov.uk/auth/terms",
+                "https://sign-in.hmpps.service.justice.gov.uk/auth/terms",
                 contactInfo(),
                 "MIT", "https://opensource.org/licenses/MIT", vendorExtensions)
     }
