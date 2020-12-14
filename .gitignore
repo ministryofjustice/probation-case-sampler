@@ -70,3 +70,4 @@ ecr.repo
 /src/test/resources/yr 2 CRC Domain 2 case sample long list v0.1.xlsx
 /src/test/resources/sample.json
 /src/test/resources/output.json
+.editorconfig
