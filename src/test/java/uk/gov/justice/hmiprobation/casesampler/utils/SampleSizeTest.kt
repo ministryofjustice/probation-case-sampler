@@ -7,96 +7,118 @@ import uk.gov.justice.hmiprobation.casesampler.utils.Type.INCREASED_FOR_RO
 import uk.gov.justice.hmiprobation.casesampler.utils.Type.INITIAL
 import uk.gov.justice.hmiprobation.casesampler.utils.Type.WITH_BUFFER
 
-
 class SampleSizeTest {
 
-    @Test
-    fun `check update`() {
+  @Test
+  fun `check update`() {
 
-        assertThat(
-                SampleSize(1, 5, "100%")
-                        .update(WITH_BUFFER, 5)
-        ).isEqualTo(
-                SampleSize(5, 5,"100%", WITH_BUFFER, listOf(
-                        PreviousValue(INITIAL, 1)
-                ))
+    assertThat(
+      SampleSize(1, 5, "100%")
+        .update(WITH_BUFFER, 5)
+    ).isEqualTo(
+      SampleSize(
+        5,
+        5,
+        "100%",
+        WITH_BUFFER,
+        listOf(
+          PreviousValue(INITIAL, 1)
         )
-    }
+      )
+    )
+  }
 
-    @Test
-    fun `check multiple updates`() {
+  @Test
+  fun `check multiple updates`() {
 
-        assertThat(
-                SampleSize(1, 6, "100%")
-                        .update(WITH_BUFFER, 5)
-                        .update(INCREASED_FOR_RO, 4)
-                        .update(DECREASED_FOR_RO, 6)
-        ).isEqualTo(
-                SampleSize(6, 6, "100%", DECREASED_FOR_RO, listOf(
-                        PreviousValue(INITIAL, 1),
-                        PreviousValue(WITH_BUFFER, 5),
-                        PreviousValue(INCREASED_FOR_RO, 4)
-                ))
+    assertThat(
+      SampleSize(1, 6, "100%")
+        .update(WITH_BUFFER, 5)
+        .update(INCREASED_FOR_RO, 4)
+        .update(DECREASED_FOR_RO, 6)
+    ).isEqualTo(
+      SampleSize(
+        6,
+        6,
+        "100%",
+        DECREASED_FOR_RO,
+        listOf(
+          PreviousValue(INITIAL, 1),
+          PreviousValue(WITH_BUFFER, 5),
+          PreviousValue(INCREASED_FOR_RO, 4)
         )
+      )
+    )
+  }
 
-    }
+  @Test
+  fun `update ignores merges subsequent event types`() {
 
-    @Test
-    fun `update ignores merges subsequent event types`() {
-
-        assertThat(
-                SampleSize(1, 7, "100%")
-                        .update(WITH_BUFFER, 5)
-                        .update(WITH_BUFFER, 6)
-                        .update(INCREASED_FOR_RO, 4)
-                        .update(INCREASED_FOR_RO, 2)
-                        .update(WITH_BUFFER, 6)
-                        .update(DECREASED_FOR_RO, 7)
-        ).isEqualTo(
-                SampleSize(7, 7, "100%", DECREASED_FOR_RO, listOf(
-                        PreviousValue(INITIAL, 1),
-                        PreviousValue(WITH_BUFFER, 6),
-                        PreviousValue(INCREASED_FOR_RO, 2),
-                        PreviousValue(WITH_BUFFER, 6)
-                ))
+    assertThat(
+      SampleSize(1, 7, "100%")
+        .update(WITH_BUFFER, 5)
+        .update(WITH_BUFFER, 6)
+        .update(INCREASED_FOR_RO, 4)
+        .update(INCREASED_FOR_RO, 2)
+        .update(WITH_BUFFER, 6)
+        .update(DECREASED_FOR_RO, 7)
+    ).isEqualTo(
+      SampleSize(
+        7,
+        7,
+        "100%",
+        DECREASED_FOR_RO,
+        listOf(
+          PreviousValue(INITIAL, 1),
+          PreviousValue(WITH_BUFFER, 6),
+          PreviousValue(INCREASED_FOR_RO, 2),
+          PreviousValue(WITH_BUFFER, 6)
         )
-    }
+      )
+    )
+  }
 
-    @Test
-    fun `check positive size of change`() {
+  @Test
+  fun `check positive size of change`() {
 
-        assertThat(SampleSize(1, 5, "100%")
-                .update(WITH_BUFFER, 5)
-                .previousChange()).isEqualTo(4)
-    }
+    assertThat(
+      SampleSize(1, 5, "100%")
+        .update(WITH_BUFFER, 5)
+        .previousChange()
+    ).isEqualTo(4)
+  }
 
-    @Test
-    fun `check negative size of change`() {
+  @Test
+  fun `check negative size of change`() {
 
-        assertThat(SampleSize(5, 5, "100%")
-                .update(WITH_BUFFER, 1)
-                .previousChange()).isEqualTo(-4)
-    }
+    assertThat(
+      SampleSize(5, 5, "100%")
+        .update(WITH_BUFFER, 1)
+        .previousChange()
+    ).isEqualTo(-4)
+  }
 
-    @Test
-    fun `check size of change with merged events`() {
+  @Test
+  fun `check size of change with merged events`() {
 
-        assertThat(SampleSize(1, 6, "100%")
-                .update(WITH_BUFFER, 2)
-                .update(WITH_BUFFER, 4)
-                .update(WITH_BUFFER, 6)
-                .previousChange()
-        ).isEqualTo(5)
-    }
+    assertThat(
+      SampleSize(1, 6, "100%")
+        .update(WITH_BUFFER, 2)
+        .update(WITH_BUFFER, 4)
+        .update(WITH_BUFFER, 6)
+        .previousChange()
+    ).isEqualTo(5)
+  }
 
-    @Test
-    fun `check size of change is always based on last change`() {
+  @Test
+  fun `check size of change is always based on last change`() {
 
-        assertThat(SampleSize(1, 6, "100%")
-                .update(WITH_BUFFER, 2)
-                .update(INCREASED_FOR_RO, 4)
-                .update(DECREASED_FOR_RO, 6)
-                .previousChange()
-        ).isEqualTo(2)
-    }
+    assertThat(
+      SampleSize(1, 6, "100%")
+        .update(WITH_BUFFER, 2)
+        .update(INCREASED_FOR_RO, 4)
+        .update(DECREASED_FOR_RO, 6)
+        .previousChange()
+    ).isEqualTo(2)
+  }
 }

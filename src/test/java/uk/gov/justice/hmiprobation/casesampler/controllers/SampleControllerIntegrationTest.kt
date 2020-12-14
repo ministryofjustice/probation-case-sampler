@@ -40,21 +40,24 @@ import java.util.UUID
 @ActiveProfiles(value = ["test"])
 @DisplayName("Integration Tests for SampleController")
 class SampleControllerIntegrationTest(
-        @Autowired val testRestTemplate: TestRestTemplate,
-        @Autowired val entityBuilder: EntityWithJwtAuthorisationBuilder
+  @Autowired val testRestTemplate: TestRestTemplate,
+  @Autowired val entityBuilder: EntityWithJwtAuthorisationBuilder
 ) {
 
-    @MockBean
-    lateinit var caseSamplingService: CaseSamplingService
+  @MockBean
+  lateinit var caseSamplingService: CaseSamplingService
 
-    val jsonTester = BasicJsonTester(this.javaClass)
+  val jsonTester = BasicJsonTester(this.javaClass)
 
-    val case = Case("BK", "BK", "13/11/1981", Gender.MALE, SentenceType.POST_CUSTODY,
-            "R11111", "2000/0123456Q", RiskOfSeriousHarmLevel.MEDIUM, LocalDate.of(2018, 11, 9),
-            LocalDate.of(2019, 2, 26),
-            "Westeros", "Winterfell", "Stark", "ZN", "XA", "Ned")
+  val case = Case(
+    "BK", "BK", "13/11/1981", Gender.MALE, SentenceType.POST_CUSTODY,
+    "R11111", "2000/0123456Q", RiskOfSeriousHarmLevel.MEDIUM, LocalDate.of(2018, 11, 9),
+    LocalDate.of(2019, 2, 26),
+    "Westeros", "Winterfell", "Stark", "ZN", "XA", "Ned"
+  )
 
-    val exampleRequest = """
+  val exampleRequest =
+    """
                        [{
                           "familyName" : "BK",
                           "firstName" : "BK",
@@ -73,90 +76,113 @@ class SampleControllerIntegrationTest(
                           "manager" : "XA",
                           "officer" : "Ned"
                         }]
-                    """".trimIndent()
+                    "
+    """.trimIndent()
 
-    @BeforeEach
-    fun setUp() {
-        Mockito.reset(caseSamplingService)
+  @BeforeEach
+  fun setUp() {
+    Mockito.reset(caseSamplingService)
 
-        `when`(caseSamplingService.createSample(any(), any(), any())).thenReturn(PrimaryCaseSampleProvisional(
-                id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
-                timestamp = LocalDateTime.of(2020, 1, 2, 12, 30),
-                results = listOf(StratumResult(
-                        MALE_POST_CUSTODY_NON_LOW,
-                        SampleSize(1 ,1, "100.00"),
-                        listOf(
-                                AllocationData(
-                                        cluster = Info("Westeros", SampleSize(1, 1, "100.00")),
-                                        ldu = Info("Winterfell", SampleSize(1, 1, "100.00")),
-                                        ro = Info("ZN", SampleSize(1, 1, "100.00"))
-                                )),
-                        listOf(Row("001", case))))
-        ))
+    `when`(caseSamplingService.createSample(any(), any(), any())).thenReturn(
+      PrimaryCaseSampleProvisional(
+        id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
+        timestamp = LocalDateTime.of(2020, 1, 2, 12, 30),
+        results = listOf(
+          StratumResult(
+            MALE_POST_CUSTODY_NON_LOW,
+            SampleSize(1, 1, "100.00"),
+            listOf(
+              AllocationData(
+                cluster = Info("Westeros", SampleSize(1, 1, "100.00")),
+                ldu = Info("Winterfell", SampleSize(1, 1, "100.00")),
+                ro = Info("ZN", SampleSize(1, 1, "100.00"))
+              )
+            ),
+            listOf(Row("001", case))
+          )
+        )
+      )
+    )
+  }
+
+  @Test
+  fun `create without correct role fails`() {
+    val response = testRestTemplate.exchange(
+      "/sample?size=10",
+      HttpMethod.POST,
+      entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", body = exampleRequest),
+      String::class.java
+    )
+
+    with(response) {
+      assertThat(statusCode).isEqualTo(HttpStatus.FORBIDDEN)
+      verifyNoMoreInteractions(caseSamplingService)
     }
+  }
 
-    @Test
-    fun `create without correct role fails`() {
-        val response = testRestTemplate.exchange(
-                "/sample?size=10",
-                HttpMethod.POST,
-                entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", body = exampleRequest),
-                String::class.java)
+  @Test
+  fun `create sample`() {
+    val response = testRestTemplate.exchange(
+      "/sample?size=10",
+      HttpMethod.POST,
+      entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = exampleRequest),
+      String::class.java
+    )
 
-        with(response) {
-            assertThat(statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-            verifyNoMoreInteractions(caseSamplingService)
-        }
+    with(response) {
+      assertThat(statusCode).isEqualTo(HttpStatus.OK)
+      verify(caseSamplingService).createSample(
+        10,
+        20.0,
+        listOf(
+          case
+        )
+      )
+      assertThat(jsonTester.from(body)).isStrictlyEqualToJson("result-summary.json")
     }
+  }
 
-    @Test
-    fun `create sample`() {
-        val response = testRestTemplate.exchange(
-                "/sample?size=10",
-                HttpMethod.POST,
-                entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = exampleRequest),
-                String::class.java)
+  @Test
+  fun `call Service with detail`() {
+    val response = testRestTemplate.exchange(
+      "/analyse?size=10&buffer=10.50",
+      HttpMethod.POST,
+      entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = exampleRequest),
+      String::class.java
+    )
 
-        with(response) {
-            assertThat(statusCode).isEqualTo(HttpStatus.OK)
-            verify(caseSamplingService).createSample(10, 20.0, listOf(
-                    case
-            ))
-            assertThat(jsonTester.from(body)).isStrictlyEqualToJson("result-summary.json")
-        }
+    with(response) {
+      assertThat(statusCode).isEqualTo(HttpStatus.OK)
+      verify(caseSamplingService).createSample(
+        10,
+        10.5,
+        listOf(
+          case
+        )
+      )
+      assertThat(jsonTester.from(body)).isStrictlyEqualToJson("result-detail.json")
     }
+  }
 
-    @Test
-    fun `call Service with detail`() {
-        val response = testRestTemplate.exchange(
-                "/analyse?size=10&buffer=10.50",
-                HttpMethod.POST,
-                entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = exampleRequest),
-                String::class.java)
+  @Test
+  fun `default buffer is 20%`() {
+    val response = testRestTemplate.exchange(
+      "/analyse?size=10",
+      HttpMethod.POST,
+      entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = exampleRequest),
+      String::class.java
+    )
 
-        with(response) {
-            assertThat(statusCode).isEqualTo(HttpStatus.OK)
-            verify(caseSamplingService).createSample(10, 10.5, listOf(
-                    case
-            ))
-            assertThat(jsonTester.from(body)).isStrictlyEqualToJson("result-detail.json")
-        }
+    with(response) {
+      assertThat(statusCode).isEqualTo(HttpStatus.OK)
+      verify(caseSamplingService).createSample(
+        10,
+        20.00,
+        listOf(
+          case
+        )
+      )
+      assertThat(jsonTester.from(body)).isStrictlyEqualToJson("result-detail.json")
     }
-
-    @Test
-    fun `default buffer is 20%`() {
-        val response = testRestTemplate.exchange(
-                "/analyse?size=10",
-                HttpMethod.POST,
-                entityBuilder.entityWithJwtAuthorisation("API_TEST_USER", roles = listOf("ROLE_PROBATION_CASE_SAMPLING"), body = exampleRequest),
-                String::class.java)
-
-        with(response) {
-            assertThat(statusCode).isEqualTo(HttpStatus.OK)
-            verify(caseSamplingService).createSample(10, 20.00, listOf(
-                    case
-            ))
-            assertThat(jsonTester.from(body)).isStrictlyEqualToJson("result-detail.json")
-        }
-    }
+  }
 }

@@ -8,17 +8,17 @@ import uk.gov.justice.hmiprobation.casesampler.utils.calculateSampleSize
 @Service
 class CaseSamplingService(val samplePicker: SamplePicker = SamplePicker()) {
 
-    fun createSample(sampleSize: Int, bufferPercentage: Double, longlist: PrimaryCaseSample): PrimaryCaseSampleProvisional {
+  fun createSample(sampleSize: Int, bufferPercentage: Double, longlist: PrimaryCaseSample): PrimaryCaseSampleProvisional {
 
-        val casesByStratum = longlist.asSequence()
-                .filter { !it.isExcluded }
-                .filter { it.isEarliestCaseForOffender(longlist) }
-                .groupBy { it.getStratum() }
+    val casesByStratum = longlist.asSequence()
+      .filter { !it.isExcluded }
+      .filter { it.isEarliestCaseForOffender(longlist) }
+      .groupBy { it.getStratum() }
 
-        val sampleSizes = calculateSampleSize(sampleSize, casesByStratum, bufferPercentage)
+    val sampleSizes = calculateSampleSize(sampleSize, casesByStratum, bufferPercentage)
 
-        val samples = samplePicker.pick(sampleSizes, casesByStratum)
+    val samples = samplePicker.pick(sampleSizes, casesByStratum)
 
-        return PrimaryCaseSampleProvisional(samples)
-    }
+    return PrimaryCaseSampleProvisional(samples)
+  }
 }

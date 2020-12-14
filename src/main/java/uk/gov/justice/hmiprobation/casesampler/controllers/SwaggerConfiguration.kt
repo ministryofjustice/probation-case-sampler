@@ -13,8 +13,6 @@ import springfox.documentation.service.Contact
 import springfox.documentation.service.SecurityReference
 import springfox.documentation.service.SecurityScheme
 import springfox.documentation.service.StringVendorExtension
-import springfox.documentation.service.TokenEndpoint
-import springfox.documentation.service.TokenRequestEndpoint
 import springfox.documentation.service.VendorExtension
 import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spi.service.contexts.SecurityContext
@@ -35,84 +33,84 @@ import java.util.Optional
 @Configuration
 @EnableSwagger2
 class SwaggerConfiguration(buildProperties: BuildProperties) {
-    private val version: String = buildProperties.version
+  private val version: String = buildProperties.version
 
-    @Bean
-    fun api(): Docket {
-        val docket = Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("uk.gov.justice.hmiprobation.casesampler.controllers"))
-                .paths(PathSelectors.any())
-                .build()
-                .securitySchemes(listOf(securityScheme()))
-                .securityContexts(listOf(securityContext()))
-                .apiInfo(apiInfo())
-        docket.genericModelSubstitutes(Optional::class.java)
-        docket.directModelSubstitute(ZonedDateTime::class.java, Date::class.java)
-        docket.directModelSubstitute(LocalDateTime::class.java, Date::class.java)
-        return docket
-    }
+  @Bean
+  fun api(): Docket {
+    val docket = Docket(DocumentationType.SWAGGER_2)
+      .select()
+      .apis(RequestHandlerSelectors.basePackage("uk.gov.justice.hmiprobation.casesampler.controllers"))
+      .paths(PathSelectors.any())
+      .build()
+      .securitySchemes(listOf(securityScheme()))
+      .securityContexts(listOf(securityContext()))
+      .apiInfo(apiInfo())
+    docket.genericModelSubstitutes(Optional::class.java)
+    docket.directModelSubstitute(ZonedDateTime::class.java, Date::class.java)
+    docket.directModelSubstitute(LocalDateTime::class.java, Date::class.java)
+    return docket
+  }
 
-    private fun securityScheme(): SecurityScheme {
-        val grantType = AuthorizationCodeGrantBuilder()
-                .tokenEndpoint { it.url("http://localhost:9090/auth/oauth/token").tokenName("oauthtoken")}
-                .tokenRequestEndpoint { it.url("http://localhost:9090/auth/oauth/authorize").clientIdName("swagger-client").clientSecretName("clientsecret")}
-                .build()
-        return OAuthBuilder().name("spring_oauth")
-                .grantTypes(listOf(grantType))
-                .scopes(listOf(*scopes()))
-                .build()
-    }
+  private fun securityScheme(): SecurityScheme {
+    val grantType = AuthorizationCodeGrantBuilder()
+      .tokenEndpoint { it.url("http://localhost:9090/auth/oauth/token").tokenName("oauthtoken") }
+      .tokenRequestEndpoint { it.url("http://localhost:9090/auth/oauth/authorize").clientIdName("swagger-client").clientSecretName("clientsecret") }
+      .build()
+    return OAuthBuilder().name("spring_oauth")
+      .grantTypes(listOf(grantType))
+      .scopes(listOf(*scopes()))
+      .build()
+  }
 
-    private fun scopes() = arrayOf(
-            AuthorizationScope("read", "for read operations"),
-            AuthorizationScope("write", "for write operations")
+  private fun scopes() = arrayOf(
+    AuthorizationScope("read", "for read operations"),
+    AuthorizationScope("write", "for write operations")
+  )
+
+  @Bean
+  fun uiConfig(): UiConfiguration? {
+    return UiConfigurationBuilder.builder()
+      .deepLinking(true)
+      .displayOperationId(false)
+      .defaultModelsExpandDepth(3)
+      .defaultModelExpandDepth(3)
+      .defaultModelRendering(ModelRendering.EXAMPLE)
+      .displayRequestDuration(false)
+      .docExpansion(DocExpansion.LIST)
+      .filter(false)
+      .maxDisplayedTags(null)
+      .operationsSorter(OperationsSorter.ALPHA)
+      .showExtensions(false)
+      .showCommonExtensions(false)
+      .tagsSorter(TagsSorter.ALPHA)
+      .supportedSubmitMethods(UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS)
+      .validatorUrl(null)
+      .build()
+  }
+
+  private fun securityContext() = SecurityContext.builder()
+    .securityReferences(listOf(SecurityReference("spring_oauth", scopes())))
+    .build()
+
+  private fun contactInfo() = Contact(
+    "HMPPS Digital Studio",
+    "",
+    "feedback@digital.justice.gov.uk"
+  )
+
+  private fun apiInfo(): ApiInfo {
+    val vendorExtension = StringVendorExtension("", "")
+    val vendorExtensions: MutableCollection<VendorExtension<*>> = ArrayList()
+    vendorExtensions.add(vendorExtension)
+    return ApiInfo(
+      "HMIP Probation case sampler Documentation",
+      "Reference data API for Probation case sampling.",
+      version,
+      "https://sign-in.hmpps.service.justice.gov.uk/auth/terms",
+      contactInfo(),
+      "MIT",
+      "https://opensource.org/licenses/MIT",
+      vendorExtensions
     )
-
-
-    @Bean
-    fun uiConfig(): UiConfiguration? {
-        return UiConfigurationBuilder.builder()
-                .deepLinking(true)
-                .displayOperationId(false)
-                .defaultModelsExpandDepth(3)
-                .defaultModelExpandDepth(3)
-                .defaultModelRendering(ModelRendering.EXAMPLE)
-                .displayRequestDuration(false)
-                .docExpansion(DocExpansion.LIST)
-                .filter(false)
-                .maxDisplayedTags(null)
-                .operationsSorter(OperationsSorter.ALPHA)
-                .showExtensions(false)
-                .showCommonExtensions(false)
-                .tagsSorter(TagsSorter.ALPHA)
-                .supportedSubmitMethods(UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS)
-                .validatorUrl(null)
-                .build()
-    }
-
-
-    private fun securityContext() = SecurityContext.builder()
-            .securityReferences(listOf(SecurityReference("spring_oauth", scopes())))
-            .build()
-
-
-    private fun contactInfo() = Contact(
-            "HMPPS Digital Studio",
-            "",
-            "feedback@digital.justice.gov.uk")
-
-
-    private fun apiInfo(): ApiInfo {
-        val vendorExtension = StringVendorExtension("", "")
-        val vendorExtensions: MutableCollection<VendorExtension<*>> = ArrayList()
-        vendorExtensions.add(vendorExtension)
-        return ApiInfo(
-                "HMIP Probation case sampler Documentation",
-                "Reference data API for Probation case sampling.",
-                version,
-                "https://sign-in.hmpps.service.justice.gov.uk/auth/terms",
-                contactInfo(),
-                "MIT", "https://opensource.org/licenses/MIT", vendorExtensions)
-    }
+  }
 }
