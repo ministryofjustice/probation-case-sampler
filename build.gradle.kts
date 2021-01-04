@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
   kotlin("plugin.spring") version "1.4.21"
   kotlin("plugin.jpa") version "1.4.21"
 }
@@ -23,7 +23,7 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.11")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.0")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
-  implementation("com.google.guava:guava:30.0-jre")
+  implementation("com.google.guava:guava:30.1-jre")
 
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -34,7 +34,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("com.ninja-squad:springmockk:3.0.0")
+  testImplementation("com.ninja-squad:springmockk:3.0.1")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("org.apache.poi:poi:4.1.2")
   testImplementation("org.apache.poi:poi-ooxml:4.1.2")
