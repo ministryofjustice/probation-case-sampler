@@ -21,8 +21,6 @@ dependencies {
   implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("net.sf.ehcache:ehcache:2.10.6")
   implementation("org.apache.commons:commons-lang3:3.11")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.1")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
   implementation("com.google.guava:guava:30.1-jre")
 
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
