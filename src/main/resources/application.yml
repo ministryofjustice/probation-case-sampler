@@ -7,6 +7,13 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
+  profiles:
+    groups:
+      dev:
+        - "stdout"
+      test:
+        - "stdout"
+
 server:
   port: 8080
   servlet:
