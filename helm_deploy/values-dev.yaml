@@ -11,8 +11,9 @@ image:
 ingress:
   enabled: true
   enable_allow_list: true
-  host: probation-case-sampler-dev.prison.service.justice.gov.uk
-  cert_secret: probation-case-sampler-cert
+  hosts:
+    - host: probation-case-sampler-dev.prison.service.justice.gov.uk
+      cert_secret: probation-case-sampler-cert
   path: /
 
 env:
